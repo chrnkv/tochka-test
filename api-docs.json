@@ -764,6 +764,27 @@
                 },
                 "description": "Адрес покупателя"
             },
+            "COMPLETED": {
+                "required": [
+                    "changedDateTime",
+                    "value"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ResponseStatusDTO"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "changedDateTime": {
+                                "type": "string",
+                                "format": "date-time"
+                            }
+                        }
+                    }
+                ]
+            },
             "CardPaymentMethodResultDTO": {
                 "required": [
                     "maskedPan",
@@ -789,8 +810,7 @@
                                 "description": "Срок действия банковской карты"
                             },
                             "holderName": {
-                                "pattern": "^[0-9a-zA-Z-/ _.']{1,26}$",
-                                "type": "string"
+                                "$ref": "#/components/parameters/cardHolder"
                             },
                             "rrn": {
                                 "maxLength": 12,
@@ -812,27 +832,6 @@
                                 "enum": [
                                     "CARD"
                                 ]
-                            }
-                        }
-                    }
-                ]
-            },
-            "CompletedStatusDTO": {
-                "required": [
-                    "changedDateTime",
-                    "value"
-                ],
-                "type": "object",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/ResponseStatusDTO"
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "changedDateTime": {
-                                "type": "string",
-                                "format": "date-time"
                             }
                         }
                     }
@@ -954,7 +953,7 @@
                 },
                 "description": "Данные о клиенте"
             },
-            "DeclinedStatusDTO": {
+            "DECLINED": {
                 "required": [
                     "changedDateTime",
                     "reason",
@@ -1079,7 +1078,7 @@
                         "example": 100.0
                     }
                 },
-                "description": "Данные о сумме операции"
+                "description": "Информация о сумме возвратов"
             },
             "PaymentMethodResultDTO": {
                 "required": [
@@ -1111,8 +1110,7 @@
                 "type": "object",
                 "properties": {
                     "paymentUid": {
-                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
-                        "type": "string"
+                        "$ref": "#/components/parameters/paymentUid"
                     },
                     "createdDateTime": {
                         "type": "string",
@@ -1120,8 +1118,7 @@
                         "format": "date-time"
                     },
                     "orderUid": {
-                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
-                        "type": "string"
+                        "$ref": "#/components/parameters/orderUid"
                     },
                     "amount": {
                         "$ref": "#/components/schemas/MoneyDTO"
@@ -1142,13 +1139,13 @@
                     "status": {
                         "oneOf": [
                             {
-                                "$ref": "#/components/schemas/CompletedStatusDTO"
+                                "$ref": "#/components/schemas/COMPLETED"
                             },
                             {
-                                "$ref": "#/components/schemas/DeclinedStatusDTO"
+                                "$ref": "#/components/schemas/DECLINED"
                             },
                             {
-                                "$ref": "#/components/schemas/WaitingStatusDTO"
+                                "$ref": "#/components/schemas/WAITING"
                             }
                         ]
                     },
@@ -1162,34 +1159,16 @@
                         "$ref": "#/components/schemas/RequirementsDTO"
                     },
                     "callbackUrl": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string",
-                        "description": "URL отправки уведомления об операции",
-                        "example": "https://test.tochkapay.com/notification"
+                        "$ref": "#/components/parameters/callbackUrl"
                     },
                     "successUrl": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string",
-                        "description": "URL для перенаправления при успешной операции",
-                        "example": "https://test.tochkapay.com/success"
+                        "$ref": "#/components/parameters/successUrl"
                     },
                     "declineUrl": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string",
-                        "description": "URL для перенаправления при отклоненной операции",
-                        "example": "https://test.tochkapay.com/decline"
+                        "$ref": "#/components/parameters/declineUrl"
                     },
                     "comment": {
-                        "maxLength": 255,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Комментарий к операции"
+                        "$ref": "#/components/parameters/comment"
                     },
                     "extras": {
                         "type": "object",
@@ -1365,7 +1344,7 @@
                 },
                 "description": "Данные для аутентификации банковских карт по протоколам 3DS и 3DS 2.0"
             },
-            "WaitingStatusDTO": {
+            "WAITING": {
                 "required": [
                     "changedDateTime",
                     "value"
@@ -1416,8 +1395,7 @@
                                 "description": "CVV2/CVC2 на банковской карте"
                             },
                             "holderName": {
-                                "pattern": "^[0-9a-zA-Z-/ _.']{1,26}$",
-                                "type": "string"
+                                "$ref": "#/components/parameters/cardHolder"
                             },
                             "createToken": {
                                 "type": "boolean",
@@ -1444,12 +1422,10 @@
                 "type": "object",
                 "properties": {
                     "paymentUid": {
-                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
-                        "type": "string"
+                        "$ref": "#/components/parameters/paymentUid"
                     },
                     "orderUid": {
-                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
-                        "type": "string"
+                        "$ref": "#/components/parameters/orderUid"
                     },
                     "amount": {
                         "$ref": "#/components/schemas/MoneyDTO"
@@ -1468,27 +1444,16 @@
                         "$ref": "#/components/schemas/DeviceDataDTO"
                     },
                     "callbackUrl": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string"
+                        "$ref": "#/components/parameters/callbackUrl"
                     },
                     "successUrl": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string"
+                        "$ref": "#/components/parameters/successUrl"
                     },
                     "declineUrl": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string"
+                        "$ref": "#/components/parameters/declineUrl"
                     },
                     "comment": {
-                        "maxLength": 255,
-                        "minLength": 1,
-                        "type": "string"
+                        "$ref": "#/components/parameters/comment"
                     },
                     "extras": {
                         "type": "object",
@@ -1633,15 +1598,10 @@
                         "$ref": "#/components/schemas/MoneyDTO"
                     },
                     "callbackUrl": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string"
+                        "$ref": "#/components/parameters/callbackUrl"
                     },
                     "comment": {
-                        "maxLength": 255,
-                        "minLength": 1,
-                        "type": "string"
+                        "$ref": "#/components/parameters/comment"
                     }
                 }
             },
@@ -1670,15 +1630,10 @@
                         "$ref": "#/components/schemas/MoneyDTO"
                     },
                     "callbackUrl": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string"
+                        "$ref": "#/components/parameters/callbackUrl"
                     },
                     "comment": {
-                        "maxLength": 255,
-                        "minLength": 1,
-                        "type": "string"
+                        "$ref": "#/components/parameters/comment"
                     }
                 }
             },
@@ -1770,6 +1725,22 @@
             "cardHolder": {
                 "description": "Имя клиента, указанное на банковской карте",
                 "example": "CARD HOLDER"
+            },
+            "callbackUrl": {
+                "description": "URL отправки уведомления об операции",
+                "example": "https://test.tochkapay.com/notification"
+            },
+            "successUrl": {
+                "description": "URL для перенаправления при успешной операции",
+                "example": "https://test.tochkapay.com/success"
+            },
+            "declineUrl": {
+                "description": "URL для перенаправления при отклоненной операции",
+                "example": "https://test.tochkapay.com/decline"
+            },
+            "comment": {
+                "description": "Описание услуги, которую получает клиент",
+                "example": "Пирожки"
             }
         }
     }
