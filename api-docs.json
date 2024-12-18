@@ -508,6 +508,7 @@
                         "name": "siteUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/siteUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-_]{1,64}",
                             "type": "string"
@@ -517,6 +518,7 @@
                         "name": "paymentUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/paymentUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -730,6 +732,66 @@
     },
     "components": {
         "schemas": {
+            "PaymentAmount": {
+                "required": [
+                    "currency",
+                    "value"
+                ],
+                "type": "object",
+                "properties": {
+                    "currency": {
+                        "type": "string",
+                        "description": "Валюта в формате ISO4217",
+                        "example": "RUB"
+                    },
+                    "value": {
+                        "type": "number",
+                        "description": "Сумма операции",
+                        "example": 100.0
+                    }
+                },
+                "description": "Информация о сумме операции"
+            },
+            "CapturedAmount": {
+                "required": [
+                    "currency",
+                    "value"
+                ],
+                "type": "object",
+                "properties": {
+                    "currency": {
+                        "type": "string",
+                        "description": "Валюта в формате ISO4217",
+                        "example": "RUB"
+                    },
+                    "value": {
+                        "type": "number",
+                        "description": "Сумма операции",
+                        "example": 100.0
+                    }
+                },
+                "description": "Информация о сумме подтверждений"
+            },
+            "RefundedAmount": {
+                "required": [
+                    "currency",
+                    "value"
+                ],
+                "type": "object",
+                "properties": {
+                    "currency": {
+                        "type": "string",
+                        "description": "Валюта в формате ISO4217",
+                        "example": "RUB"
+                    },
+                    "value": {
+                        "type": "number",
+                        "description": "Сумма операции",
+                        "example": 100.0
+                    }
+                },
+                "description": "Информация о сумме возвратов"
+            },
             "AddressDTO": {
                 "type": "object",
                 "properties": {
@@ -780,6 +842,14 @@
                             "changedDateTime": {
                                 "type": "string",
                                 "format": "date-time"
+                            },
+                            "value": {
+                                "type": "string",
+                                "enum": [
+                                    "WAITING",
+                                    "DECLINED",
+                                    "COMPLETED"
+                                ]
                             }
                         }
                     }
@@ -810,7 +880,10 @@
                                 "description": "Срок действия банковской карты"
                             },
                             "holderName": {
-                                "$ref": "#/components/parameters/cardHolder"
+                                "pattern": "^[0-9a-zA-Z-/ _.']{1,26}$",
+                                "type": "string",
+                                "description": "Имя клиента, указанное на банковской карте",
+                                "example": "CARD HOLDER"
                             },
                             "rrn": {
                                 "maxLength": 12,
@@ -986,6 +1059,14 @@
                                 "maxLength": 5,
                                 "minLength": 0,
                                 "type": "string"
+                            },
+                            "value": {
+                                "type": "string",
+                                "enum": [
+                                    "WAITING",
+                                    "DECLINED",
+                                    "COMPLETED"
+                                ]
                             }
                         }
                     }
@@ -1031,7 +1112,7 @@
                         "example": "52609E00B7EE307E79EB100099B9A8BF"
                     }
                 },
-                "description": "Данные об устройстве клиента,"
+                "description": "Данные об устройстве клиента"
             },
             "LinksDTO": {
                 "required": [
@@ -1061,24 +1142,7 @@
                 }
             },
             "MoneyDTO": {
-                "required": [
-                    "currency",
-                    "value"
-                ],
-                "type": "object",
-                "properties": {
-                    "currency": {
-                        "type": "string",
-                        "description": "Валюта в формате ISO4217",
-                        "example": "RUB"
-                    },
-                    "value": {
-                        "type": "number",
-                        "description": "Сумма операции",
-                        "example": 100.0
-                    }
-                },
-                "description": "Информация о сумме возвратов"
+                "$ref": "#/components/schemas/RefundedAmount"
             },
             "PaymentMethodResultDTO": {
                 "required": [
@@ -1110,7 +1174,10 @@
                 "type": "object",
                 "properties": {
                     "paymentUid": {
-                        "$ref": "#/components/parameters/paymentUid"
+                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                        "type": "string",
+                        "description": "Уникальный идентификатор платежа в информационной системе ТСП",
+                        "example": "977639EE70494C67"
                     },
                     "createdDateTime": {
                         "type": "string",
@@ -1118,16 +1185,18 @@
                         "format": "date-time"
                     },
                     "orderUid": {
-                        "$ref": "#/components/parameters/orderUid"
+                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                        "type": "string",
+                        "description": "Идентификатор заказа"
                     },
                     "amount": {
-                        "$ref": "#/components/schemas/MoneyDTO"
+                        "$ref": "#/components/schemas/PaymentAmount"
                     },
                     "capturedAmount": {
-                        "$ref": "#/components/schemas/MoneyDTO"
+                        "$ref": "#/components/schemas/CapturedAmount"
                     },
                     "refundedAmount": {
-                        "$ref": "#/components/schemas/MoneyDTO"
+                        "$ref": "#/components/schemas/RefundedAmount"
                     },
                     "paymentMethod": {
                         "oneOf": [
@@ -1159,16 +1228,34 @@
                         "$ref": "#/components/schemas/RequirementsDTO"
                     },
                     "callbackUrl": {
-                        "$ref": "#/components/parameters/callbackUrl"
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL отправки уведомления об операции",
+                        "example": "https://test.tochkapay.com/notification"
                     },
                     "successUrl": {
-                        "$ref": "#/components/parameters/successUrl"
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL для перенаправления при успешной операции",
+                        "example": "https://test.tochkapay.com/success"
                     },
                     "declineUrl": {
-                        "$ref": "#/components/parameters/declineUrl"
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL для перенаправления при отклоненной операции",
+                        "example": "https://test.tochkapay.com/decline"
                     },
                     "comment": {
-                        "$ref": "#/components/parameters/comment"
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Комментарий"
                     },
                     "extras": {
                         "type": "object",
@@ -1195,7 +1282,7 @@
                     },
                     "isTest": {
                         "type": "boolean",
-                        "description": "Признак тестовой операции"
+                        "description": "Флаг тестовой операции"
                     }
                 }
             },
@@ -1259,6 +1346,7 @@
                 "properties": {
                     "value": {
                         "type": "string",
+                        "description": "Значение статуса операции",
                         "enum": [
                             "WAITING",
                             "DECLINED",
@@ -1360,6 +1448,14 @@
                             "changedDateTime": {
                                 "type": "string",
                                 "format": "date-time"
+                            },
+                            "value": {
+                                "type": "string",
+                                "enum": [
+                                    "WAITING",
+                                    "DECLINED",
+                                    "COMPLETED"
+                                ]
                             }
                         }
                     }
@@ -1395,7 +1491,10 @@
                                 "description": "CVV2/CVC2 на банковской карте"
                             },
                             "holderName": {
-                                "$ref": "#/components/parameters/cardHolder"
+                                "pattern": "^[0-9a-zA-Z-/ _.']{1,26}$",
+                                "type": "string",
+                                "description": "Имя клиента, указанное на банковской карте",
+                                "example": "CARD HOLDER"
                             },
                             "createToken": {
                                 "type": "boolean",
@@ -1422,13 +1521,18 @@
                 "type": "object",
                 "properties": {
                     "paymentUid": {
-                        "$ref": "#/components/parameters/paymentUid"
+                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                        "type": "string",
+                        "description": "Уникальный идентификатор платежа в информационной системе ТСП",
+                        "example": "977639EE70494C67"
                     },
                     "orderUid": {
-                        "$ref": "#/components/parameters/orderUid"
+                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                        "type": "string",
+                        "description": "Идентификатор заказа"
                     },
                     "amount": {
-                        "$ref": "#/components/schemas/MoneyDTO"
+                        "$ref": "#/components/schemas/PaymentAmount"
                     },
                     "paymentMethod": {
                         "oneOf": [
@@ -1444,16 +1548,34 @@
                         "$ref": "#/components/schemas/DeviceDataDTO"
                     },
                     "callbackUrl": {
-                        "$ref": "#/components/parameters/callbackUrl"
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL отправки уведомления об операции",
+                        "example": "https://test.tochkapay.com/notification"
                     },
                     "successUrl": {
-                        "$ref": "#/components/parameters/successUrl"
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL для перенаправления при успешной операции",
+                        "example": "https://test.tochkapay.com/success"
                     },
                     "declineUrl": {
-                        "$ref": "#/components/parameters/declineUrl"
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL для перенаправления при отклоненной операции",
+                        "example": "https://test.tochkapay.com/decline"
                     },
                     "comment": {
-                        "$ref": "#/components/parameters/comment"
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Комментарий"
                     },
                     "extras": {
                         "type": "object",
@@ -1517,20 +1639,27 @@
                     "errorCode": {
                         "maxLength": 200,
                         "minLength": 1,
-                        "type": "string"
+                        "type": "string",
+                        "description": "Низкоуровневое текстовое описание ошибки",
+                        "example": "HTTPBadRequest"
                     },
                     "message": {
                         "maxLength": 603,
                         "minLength": 1,
-                        "type": "string"
+                        "type": "string",
+                        "description": "Описание ошибки. Обрезается если длина ошибки превышает максимальное значение",
+                        "example": "Something going wrong"
                     },
                     "url": {
                         "maxLength": 2083,
                         "minLength": 1,
                         "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string"
+                        "type": "string",
+                        "description": "URL для помощи в устранении проблемы",
+                        "example": "http://enter.tochka.com/open-banking/docs"
                     }
-                }
+                },
+                "description": "Описание ошибки валидации конкретного поля"
             },
             "ErrorResponseDTO": {
                 "required": [
@@ -1550,20 +1679,27 @@
                             "code": {
                                 "maxLength": 40,
                                 "minLength": 1,
-                                "type": "string"
+                                "type": "string",
+                                "description": "Высокоуровневый текстовый код ошибки, необходимый для классификации",
+                                "example": "400"
                             },
                             "id": {
                                 "maxLength": 40,
                                 "minLength": 1,
-                                "type": "string"
+                                "type": "string",
+                                "description": "Уникальный идентификатор ошибки, для целей аудита",
+                                "example": "c397b21a-d998-4c4d-9471-e60eaf816b87"
                             },
                             "message": {
                                 "maxLength": 600,
                                 "minLength": 1,
-                                "type": "string"
+                                "type": "string",
+                                "description": "Краткое сообщение об ошибке",
+                                "example": "Что-то пошло не так"
                             },
                             "Errors": {
                                 "type": "array",
+                                "description": "Описание ошибки валидации конкретного поля",
                                 "items": {
                                     "$ref": "#/components/schemas/ErrorDetailsDTO"
                                 }
@@ -1592,16 +1728,26 @@
                 "properties": {
                     "refundUid": {
                         "pattern": "^[0-9a-zA-Z-]{1,64}$",
-                        "type": "string"
+                        "type": "string",
+                        "description": "Идентификатор операции"
                     },
                     "amount": {
                         "$ref": "#/components/schemas/MoneyDTO"
                     },
                     "callbackUrl": {
-                        "$ref": "#/components/parameters/callbackUrl"
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL отправки уведомления об операции",
+                        "example": "https://test.tochkapay.com/notification"
                     },
                     "comment": {
-                        "$ref": "#/components/parameters/comment"
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Дополнительное описание возврата",
+                        "example": "Возврат за услугу"
                     }
                 }
             },
@@ -1630,10 +1776,18 @@
                         "$ref": "#/components/schemas/MoneyDTO"
                     },
                     "callbackUrl": {
-                        "$ref": "#/components/parameters/callbackUrl"
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL отправки уведомления об операции",
+                        "example": "https://test.tochkapay.com/notification"
                     },
                     "comment": {
-                        "$ref": "#/components/parameters/comment"
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Комментарий"
                     }
                 }
             },
@@ -1705,7 +1859,8 @@
                 "schema": {
                     "pattern": "^[0-9a-zA-Z-_]{1,64}",
                     "type": "string"
-                }
+                },
+                "example": "tochka-site-00"
             },
             "paymentUid": {
                 "name": "paymentUid",
@@ -1717,30 +1872,6 @@
                     "type": "string"
                 },
                 "example": "977639EE70494C67"
-            },
-            "orderUid": {
-                "description": "Идентификатор заказа",
-                "example": "HeV24beTZCTdwvIEgtBA"
-            },
-            "cardHolder": {
-                "description": "Имя клиента, указанное на банковской карте",
-                "example": "CARD HOLDER"
-            },
-            "callbackUrl": {
-                "description": "URL отправки уведомления об операции",
-                "example": "https://test.tochkapay.com/notification"
-            },
-            "successUrl": {
-                "description": "URL для перенаправления при успешной операции",
-                "example": "https://test.tochkapay.com/success"
-            },
-            "declineUrl": {
-                "description": "URL для перенаправления при отклоненной операции",
-                "example": "https://test.tochkapay.com/decline"
-            },
-            "comment": {
-                "description": "Описание услуги, которую получает клиент",
-                "example": "Пирожки"
             }
         }
     }
