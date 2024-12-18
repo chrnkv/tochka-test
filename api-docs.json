@@ -865,13 +865,13 @@
                             "status": {
                                 "oneOf": [
                                     {
-                                        "$ref": "#/components/schemas/COMPLETED"
+                                        "$ref": "#/components/schemas/CompletedStatusDTO"
                                     },
                                     {
-                                        "$ref": "#/components/schemas/DECLINED"
+                                        "$ref": "#/components/schemas/DeclinedStatusDTO"
                                     },
                                     {
-                                        "$ref": "#/components/schemas/WAITING"
+                                        "$ref": "#/components/schemas/WaitingStatusDTO"
                                     }
                                 ]
                             },
@@ -983,13 +983,13 @@
                             "status": {
                                 "oneOf": [
                                     {
-                                        "$ref": "#/components/schemas/COMPLETED"
+                                        "$ref": "#/components/schemas/CompletedStatusDTO"
                                     },
                                     {
-                                        "$ref": "#/components/schemas/DECLINED"
+                                        "$ref": "#/components/schemas/DeclinedStatusDTO"
                                     },
                                     {
-                                        "$ref": "#/components/schemas/WAITING"
+                                        "$ref": "#/components/schemas/WaitingStatusDTO"
                                     }
                                 ]
                             },
