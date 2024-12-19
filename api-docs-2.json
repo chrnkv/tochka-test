@@ -20,6 +20,10 @@
             "description": "Методы для проведения платежей"
         },
         {
+            "name": "Подтверждение",
+            "description": "Методы для подтверждения"
+        },
+        {
             "name": "Возвраты",
             "description": "Методы для проведения возвратов"
         }
@@ -30,8 +34,8 @@
                 "tags": [
                     "Платежи"
                 ],
-                "summary": "Получение информации о платеже",
-                "description": "<Описание метода получени информации платежа>",
+                "summary": "Статус платежа",
+                "description": "Получить информацию о платежной транзакции",
                 "operationId": "getPayment",
                 "parameters": [
                     {
@@ -59,7 +63,7 @@
                     "200": {
                         "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
                                 }
@@ -69,7 +73,7 @@
                     "400": {
                         "description": "Bad request",
                         "content": {
-                            "*/*": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -90,7 +94,7 @@
                     "Платежи"
                 ],
                 "summary": "Создание платежа",
-                "description": "<Описание метода создания платежа>",
+                "description": "Создать платежную транзакцию.",
                 "operationId": "createPayment",
                 "parameters": [
                     {
@@ -128,7 +132,7 @@
                     "200": {
                         "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
                                 }
@@ -138,7 +142,7 @@
                     "400": {
                         "description": "Bad request",
                         "content": {
-                            "*/*": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -160,12 +164,15 @@
                 "tags": [
                     "Возвраты"
                 ],
+                "summary": "Статус возврата",
+                "description": "Получить статус указанного возврата",
                 "operationId": "getRefund",
                 "parameters": [
                     {
                         "name": "siteUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/siteUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-_]{1,64}",
                             "type": "string"
@@ -175,6 +182,7 @@
                         "name": "paymentUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/paymentUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -184,6 +192,7 @@
                         "name": "refundUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/refundUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -192,9 +201,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -214,12 +233,15 @@
                 "tags": [
                     "Возвраты"
                 ],
+                "summary": "Создание операции возврата",
+                "description": "Запрос предназначен для возврата средств по завершенному платежу",
                 "operationId": "createRefund",
                 "parameters": [
                     {
                         "name": "siteUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/siteUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-_]{1,64}",
                             "type": "string"
@@ -229,6 +251,7 @@
                         "name": "paymentUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/paymentUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -238,6 +261,7 @@
                         "name": "refundUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/refundUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -256,9 +280,19 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -278,14 +312,17 @@
         "/v1/sites/{siteUid}/payments/{paymentUid}/captures/{captureUid}": {
             "get": {
                 "tags": [
-                    "capture-controller"
+                    "Подтверждение"
                 ],
+                "summary": "Статус подтверждения",
+                "description": "Получить статус указанного подтверждения платежа.",
                 "operationId": "getCapture",
                 "parameters": [
                     {
                         "name": "siteUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/siteUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-_]{1,64}",
                             "type": "string"
@@ -295,6 +332,7 @@
                         "name": "paymentUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/paymentUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -304,6 +342,7 @@
                         "name": "captureUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/captureUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -312,9 +351,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -332,14 +381,17 @@
             },
             "put": {
                 "tags": [
-                    "capture-controller"
+                    "Подтверждение"
                 ],
+                "summary": "Подтверждение платежа",
+                "description": "Подтвердить платеж после холдирования средств.",
                 "operationId": "createCapture",
                 "parameters": [
                     {
                         "name": "siteUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/siteUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-_]{1,64}",
                             "type": "string"
@@ -349,6 +401,7 @@
                         "name": "paymentUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/paymentUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -358,6 +411,7 @@
                         "name": "captureUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/captureUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -376,9 +430,19 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -401,7 +465,7 @@
                     "Платежи"
                 ],
                 "summary": "Создание платежа",
-                "description": "<Описание метода создания платежа>",
+                "description": "Создать платежную транзакцию.",
                 "operationId": "createPayment_1",
                 "parameters": [
                     {
@@ -429,9 +493,9 @@
                     "200": {
                         "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaymentSuccessResponse"
+                                    "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
                                 }
                             }
                         }
@@ -439,7 +503,7 @@
                     "400": {
                         "description": "Bad request",
                         "content": {
-                            "*/*": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -461,12 +525,15 @@
                 "tags": [
                     "Возвраты"
                 ],
+                "summary": "Статус возвратов",
+                "description": "Получить статусы всех возвратов для данного платежа.",
                 "operationId": "getRefunds",
                 "parameters": [
                     {
                         "name": "siteUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/siteUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-_]{1,64}",
                             "type": "string"
@@ -476,6 +543,7 @@
                         "name": "paymentUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/paymentUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -484,9 +552,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -507,7 +585,7 @@
                     "Возвраты"
                 ],
                 "summary": "Создание операции возврата",
-                "description": "<Описание метода создания возврата>",
+                "description": "Запрос предназначен для возврата средств по завершенному платежу",
                 "operationId": "createRefund_1",
                 "parameters": [
                     {
@@ -545,9 +623,9 @@
                     "200": {
                         "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/RefundSuccessResponse"
+                                    "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
                                 }
                             }
                         }
@@ -555,7 +633,7 @@
                     "400": {
                         "description": "Bad request",
                         "content": {
-                            "*/*": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -578,7 +656,7 @@
                     "Завершение аутентификации"
                 ],
                 "summary": "Завершение аутентификации",
-                "description": "<Описание метода завершения аутентификации>",
+                "description": "После успешного прохождения дополнительной аутентификации, ТСП необходимо отправить запрос с параметрами соответствующими типу дополнительной аутентификации для завершения проверки.",
                 "operationId": "completePayment",
                 "parameters": [
                     {
@@ -616,7 +694,7 @@
                     "200": {
                         "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
                                 }
@@ -626,7 +704,7 @@
                     "400": {
                         "description": "Bad request",
                         "content": {
-                            "*/*": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -646,14 +724,17 @@
         "/v1/sites/{siteUid}/payments/{paymentUid}/captures": {
             "get": {
                 "tags": [
-                    "capture-controller"
+                    "Подтверждение"
                 ],
+                "summary": "Статус подтверждения",
+                "description": "Получить статус указанного подтверждения платежа",
                 "operationId": "getCaptures",
                 "parameters": [
                     {
                         "name": "siteUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/siteUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-_]{1,64}",
                             "type": "string"
@@ -663,6 +744,7 @@
                         "name": "paymentUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/paymentUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -671,9 +753,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -691,14 +783,17 @@
             },
             "post": {
                 "tags": [
-                    "capture-controller"
+                    "Подтверждение"
                 ],
+                "summary": "Подтверждение платежа",
+                "description": "Подтвердить платеж после холдирования средств.",
                 "operationId": "createCapture_1",
                 "parameters": [
                     {
                         "name": "siteUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/siteUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-_]{1,64}",
                             "type": "string"
@@ -708,6 +803,7 @@
                         "name": "paymentUid",
                         "in": "path",
                         "required": true,
+                        "$ref": "#/components/parameters/paymentUid",
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
@@ -726,9 +822,19 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success",
                         "content": {
-                            "*/*": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessWrappedResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
                                 "schema": {
                                     "oneOf": [
                                         {
@@ -808,291 +914,6 @@
                 },
                 "description": "Информация о сумме возвратов"
             },
-            "PaymentSuccessResponse": {
-                "required": [
-                    "Data",
-                    "Links",
-                    "Meta"
-                ],
-                "type": "object",
-                "properties": {
-                    "Data": {
-                        "required": [
-                            "amount",
-                            "capturedAmount",
-                            "createdDateTime",
-                            "isTest",
-                            "paymentMethod",
-                            "paymentUid",
-                            "refundedAmount",
-                            "status"
-                        ],
-                        "type": "object",
-                        "properties": {
-                            "paymentUid": {
-                                "pattern": "^[0-9a-zA-Z-]{1,64}$",
-                                "type": "string",
-                                "description": "Уникальный идентификатор платежа в информационной системе ТСП",
-                                "example": "977639EE70494C67"
-                            },
-                            "createdDateTime": {
-                                "type": "string",
-                                "description": "Дата создания платежа",
-                                "format": "date-time"
-                            },
-                            "orderUid": {
-                                "pattern": "^[0-9a-zA-Z-]{1,64}$",
-                                "type": "string",
-                                "description": "Идентификатор заказа",
-                                "example": "12EKN0170494C67"
-                            },
-                            "amount": {
-                                "$ref": "#/components/schemas/PaymentAmount"
-                            },
-                            "capturedAmount": {
-                                "$ref": "#/components/schemas/CapturedAmount"
-                            },
-                            "refundedAmount": {
-                                "$ref": "#/components/schemas/RefundedAmount"
-                            },
-                            "paymentMethod": {
-                                "oneOf": [
-                                    {
-                                        "$ref": "#/components/schemas/CardPaymentMethodResultDTO"
-                                    }
-                                ]
-                            },
-                            "status": {
-                                "oneOf": [
-                                    {
-                                        "$ref": "#/components/schemas/CompletedStatusDTO"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/DeclinedStatusDTO"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/WaitingStatusDTO"
-                                    }
-                                ]
-                            },
-                            "customer": {
-                                "$ref": "#/components/schemas/CustomerDTO"
-                            },
-                            "deviceData": {
-                                "$ref": "#/components/schemas/DeviceDataDTO"
-                            },
-                            "requirements": {
-                                "$ref": "#/components/schemas/RequirementsDTO"
-                            },
-                            "callbackUrl": {
-                                "maxLength": 2083,
-                                "minLength": 1,
-                                "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                                "type": "string",
-                                "description": "URL отправки уведомления об операции",
-                                "example": "https://test.tochkapay.com/notification"
-                            },
-                            "successUrl": {
-                                "maxLength": 2083,
-                                "minLength": 1,
-                                "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                                "type": "string",
-                                "description": "URL для перенаправления при успешной операции",
-                                "example": "https://test.tochkapay.com/success"
-                            },
-                            "declineUrl": {
-                                "maxLength": 2083,
-                                "minLength": 1,
-                                "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                                "type": "string",
-                                "description": "URL для перенаправления при отклоненной операции",
-                                "example": "https://test.tochkapay.com/decline"
-                            },
-                            "comment": {
-                                "maxLength": 255,
-                                "minLength": 1,
-                                "type": "string",
-                                "description": "Комментарий"
-                            },
-                            "extras": {
-                                "type": "object",
-                                "additionalProperties": {
-                                    "type": "string",
-                                    "description": "Дополнительные поля с произвольной информацией"
-                                },
-                                "description": "Дополнительные поля с произвольной информацией"
-                            },
-                            "receiverData": {
-                                "$ref": "#/components/schemas/ReceiverDataDTO"
-                            },
-                            "captureMode": {
-                                "type": "string",
-                                "description": "Признак двухстадийного сценария",
-                                "enum": [
-                                    "AUTO",
-                                    "MANUAL"
-                                ]
-                            },
-                            "isAft": {
-                                "type": "boolean",
-                                "description": "Флаг AFT операции"
-                            },
-                            "isTest": {
-                                "type": "boolean",
-                                "description": "Флаг тестовой операции"
-                            }
-                        }
-                    },
-                    "Links": {
-                        "$ref": "#/components/schemas/LinksDTO"
-                    },
-                    "Meta": {
-                        "$ref": "#/components/schemas/MetaDTO"
-                    }
-                }
-            },
-            "RefundSuccessResponse": {
-                "required": [
-                    "Data",
-                    "Links",
-                    "Meta"
-                ],
-                "type": "object",
-                "properties": {
-                    "Data": {
-                        "required": [
-                            "amount",
-                            "createdDateTime",
-                            "isReversal",
-                            "refundUid",
-                            "status"
-                        ],
-                        "type": "object",
-                        "properties": {
-                            "refundUid": {
-                                "pattern": "^[0-9a-zA-Z-]{1,64}$",
-                                "type": "string"
-                            },
-                            "createdDateTime": {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "amount": {
-                                "$ref": "#/components/schemas/MoneyDTO"
-                            },
-                            "status": {
-                                "oneOf": [
-                                    {
-                                        "$ref": "#/components/schemas/CompletedStatusDTO"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/DeclinedStatusDTO"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/WaitingStatusDTO"
-                                    }
-                                ]
-                            },
-                            "callbackUrl": {
-                                "maxLength": 2083,
-                                "minLength": 1,
-                                "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                                "type": "string",
-                                "description": "URL отправки уведомления об операции",
-                                "example": "https://test.tochkapay.com/notification"
-                            },
-                            "comment": {
-                                "maxLength": 255,
-                                "minLength": 1,
-                                "type": "string",
-                                "description": "Комментарий"
-                            },
-                            "refundMethodResult": {
-                                "oneOf": [
-                                    {
-                                        "$ref": "#/components/schemas/CardRefundMethodResultDTO"
-                                    }
-                                ]
-                            },
-                            "isReversal": {
-                                "type": "boolean"
-                            }
-                        }
-                    },
-                    "Links": {
-                        "$ref": "#/components/schemas/LinksDTO"
-                    },
-                    "Meta": {
-                        "$ref": "#/components/schemas/MetaDTO"
-                    }
-                }
-            },
-            "LinksDTO": {
-                "required": [
-                    "self"
-                ],
-                "type": "object",
-                "properties": {
-                    "self": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string",
-                        "example": "https://enter.tochka.com/uapi/pay"
-                    }
-                }
-            },
-            "MetaDTO": {
-                "required": [
-                    "totalPages"
-                ],
-                "type": "object",
-                "properties": {
-                    "totalPages": {
-                        "type": "integer",
-                        "format": "int32"
-                    }
-                }
-            },
-            "SuccessWrappedResponseDTO": {
-                "required": [
-                    "Data",
-                    "Links",
-                    "Meta"
-                ],
-                "type": "object",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/WrappedResponseDTOPaymentResponseDTO"
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "Data": {
-                                "type": "object"
-                            },
-                            "Links": {
-                                "$ref": "#/components/schemas/LinksDTO"
-                            },
-                            "Meta": {
-                                "$ref": "#/components/schemas/MetaDTO"
-                            }
-                        }
-                    },
-                    {
-                        "$ref": "#/components/schemas/WrappedResponseDTOListRefundResponseDTO"
-                    },
-                    {
-                        "$ref": "#/components/schemas/WrappedResponseDTORefundResponseDTO"
-                    },
-                    {
-                        "$ref": "#/components/schemas/WrappedResponseDTOListCaptureResponseDTO"
-                    },
-                    {
-                        "$ref": "#/components/schemas/WrappedResponseDTOCaptureResponseDTO"
-                    }
-                ]
-            },
             "AddressDTO": {
                 "type": "object",
                 "properties": {
@@ -1126,6 +947,799 @@
                     }
                 },
                 "description": "Адрес покупателя"
+            },
+            "CaptureResponseDTO": {
+                "required": [
+                    "amount",
+                    "captureUid",
+                    "createdDateTime",
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "captureUid": {
+                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                        "type": "string"
+                    },
+                    "createdDateTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyDTO"
+                    },
+                    "status": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CompletedStatusDTO"
+                            },
+                            {
+                                "$ref": "#/components/schemas/DeclinedStatusDTO"
+                            },
+                            {
+                                "$ref": "#/components/schemas/WaitingStatusDTO"
+                            }
+                        ]
+                    },
+                    "callbackUrl": {
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL отправки уведомления об операции",
+                        "example": "https://test.tochkapay.com/notification"
+                    },
+                    "comment": {
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Комментарий"
+                    }
+                }
+            },
+            "CardPaymentMethodResultDTO": {
+                "required": [
+                    "maskedPan",
+                    "type"
+                ],
+                "type": "object",
+                "description": "CARD",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PaymentMethodResultDTO"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "maskedPan": {
+                                "pattern": "^\\d{4,8}\\*{1,11}\\d{2}$",
+                                "type": "string",
+                                "description": "Маскированный номер карты",
+                                "example": "444444******0563"
+                            },
+                            "expirationDate": {
+                                "pattern": "(?:0?[1-9]|1[0-2])/[0-9]{2}",
+                                "type": "string",
+                                "description": "Срок действия банковской карты"
+                            },
+                            "holderName": {
+                                "pattern": "^[0-9a-zA-Z-/ _.']{1,26}$",
+                                "type": "string",
+                                "description": "Имя клиента, указанное на банковской карте",
+                                "example": "CARD HOLDER"
+                            },
+                            "rrn": {
+                                "maxLength": 12,
+                                "minLength": 12,
+                                "type": "string",
+                                "description": "RRN платежа",
+                                "example": "003235873473"
+                            },
+                            "authCode": {
+                                "pattern": "^\\d{6}$",
+                                "type": "string",
+                                "description": "Auth-code платежа"
+                            },
+                            "createdToken": {
+                                "$ref": "#/components/schemas/CreatedTokenDTO"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "CARD"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            "CardRefundMethodResultDTO": {
+                "required": [
+                    "type"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/RefundMethodResultDTO"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "rrn": {
+                                "maxLength": 12,
+                                "minLength": 12,
+                                "type": "string",
+                                "description": "RRN операции",
+                                "example": "003235873473"
+                            },
+                            "authCode": {
+                                "pattern": "^\\d{6}$",
+                                "type": "string",
+                                "description": "Auth-code операции",
+                                "example": "003235873473"
+                            }
+                        }
+                    }
+                ]
+            },
+            "CompletedStatusDTO": {
+                "required": [
+                    "changedDateTime",
+                    "value"
+                ],
+                "type": "object",
+                "description": "COMPLETED",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ResponseStatusDTO"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "changedDateTime": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "value": {
+                                "type": "string",
+                                "enum": [
+                                    "WAITING",
+                                    "DECLINED",
+                                    "COMPLETED"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            "CreatedTokenDTO": {
+                "required": [
+                    "expirationDate",
+                    "token"
+                ],
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                        "type": "string",
+                        "description": "Строка платежного токена"
+                    },
+                    "expirationDate": {
+                        "type": "string",
+                        "description": "Дата окончания срока действия платежного токена",
+                        "format": "date-time"
+                    },
+                    "name": {
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Маскированный номер карты, для которой выпущен токен",
+                        "example": "444444******0563"
+                    },
+                    "account": {
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Идентификатор Покупателя",
+                        "example": "token1631"
+                    }
+                },
+                "description": "Объект данных платежного токена"
+            },
+            "CustomerDTO": {
+                "type": "object",
+                "properties": {
+                    "account": {
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Идентификатор пользователя",
+                        "example": "E268443E43D93DAB7EBEF303BBE9642F"
+                    },
+                    "email": {
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "pattern": "^[^@\\s]+@[^@\\s]+$",
+                        "type": "string",
+                        "description": "E-mail пользователя",
+                        "example": "pay@tochka.com"
+                    },
+                    "phone": {
+                        "pattern": "^\\+?\\d{11,16}$",
+                        "type": "string",
+                        "description": "Номер телефона пользователя",
+                        "example": "79123456789"
+                    },
+                    "bic": {
+                        "pattern": "^\\d{8,11}$",
+                        "type": "string",
+                        "description": "БИК банка, выпустившего карту",
+                        "example": "044525104"
+                    },
+                    "bankAccount": {
+                        "pattern": "^\\d{20}$",
+                        "type": "string",
+                        "description": "Номер счета плательщика",
+                        "example": "044525104"
+                    },
+                    "firstName": {
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Имя покупателя",
+                        "example": "Ivan"
+                    },
+                    "middleName": {
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Отчество покупателя",
+                        "example": "Ivanov"
+                    },
+                    "lastName": {
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Фамилия покупателя",
+                        "example": "Ivanov"
+                    },
+                    "inn": {
+                        "pattern": "^(\\d{10}|\\d{12})$",
+                        "type": "string",
+                        "description": "ИНН покупателя",
+                        "example": "775598987121"
+                    },
+                    "bankMemberId": {
+                        "pattern": "^\\d{12}$",
+                        "type": "string",
+                        "description": "Идентификатор банка покупателя",
+                        "example": "100000000284"
+                    },
+                    "simpleAddress": {
+                        "maxLength": 256,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Адрес покупателя",
+                        "example": "Verhnyaya Radishchevskaya ulica, dom 2/1"
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/AddressDTO"
+                    }
+                },
+                "description": "Данные о клиенте"
+            },
+            "DeclinedStatusDTO": {
+                "required": [
+                    "changedDateTime",
+                    "reason",
+                    "reasonMessage",
+                    "value"
+                ],
+                "type": "object",
+                "description": "DECLINED",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ResponseStatusDTO"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "changedDateTime": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "reason": {
+                                "maxLength": 100,
+                                "minLength": 1,
+                                "type": "string"
+                            },
+                            "reasonMessage": {
+                                "maxLength": 500,
+                                "minLength": 1,
+                                "type": "string"
+                            },
+                            "psErrorCode": {
+                                "maxLength": 5,
+                                "minLength": 0,
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "string",
+                                "enum": [
+                                    "WAITING",
+                                    "DECLINED",
+                                    "COMPLETED"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            "DeviceDataDTO": {
+                "type": "object",
+                "properties": {
+                    "ip": {
+                        "pattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+                        "type": "string",
+                        "description": "IP Адрес клиента",
+                        "example": "127.0.0.1"
+                    },
+                    "dateTime": {
+                        "type": "string",
+                        "description": "Локальное время клиента в формате формате ISO8601",
+                        "format": "date-time"
+                    },
+                    "screenResolution": {
+                        "pattern": "^\\d{1,5}x\\d{1,4}$",
+                        "type": "string",
+                        "description": "Разрешение экрана клиента",
+                        "example": "1024x768"
+                    },
+                    "timeOnPage": {
+                        "type": "integer",
+                        "description": "Время просмотра страницы браузераа",
+                        "format": "int64",
+                        "example": 732
+                    },
+                    "userAgent": {
+                        "maxLength": 1024,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Данные о браузере клиента",
+                        "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+                    },
+                    "fingerprint": {
+                        "maxLength": 2048,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Уникальный идентификатор устройства клиента",
+                        "example": "52609E00B7EE307E79EB100099B9A8BF"
+                    }
+                },
+                "description": "Данные об устройстве клиента"
+            },
+            "LinksDTO": {
+                "required": [
+                    "self"
+                ],
+                "type": "object",
+                "properties": {
+                    "self": {
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "example": "https://enter.tochka.com/uapi/pay"
+                    }
+                }
+            },
+            "MetaDTO": {
+                "required": [
+                    "totalPages"
+                ],
+                "type": "object",
+                "properties": {
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "MoneyDTO": {
+                "$ref": "#/components/schemas/RefundedAmount"
+            },
+            "PaymentMethodResultDTO": {
+                "required": [
+                    "type"
+                ],
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "Тип платежного метода",
+                        "enum": [
+                            "CARD"
+                        ]
+                    }
+                },
+                "description": "Метод платежа"
+            },
+            "PaymentResponseDTO": {
+                "required": [
+                    "amount",
+                    "capturedAmount",
+                    "createdDateTime",
+                    "isTest",
+                    "paymentMethod",
+                    "paymentUid",
+                    "refundedAmount",
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "paymentUid": {
+                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                        "type": "string",
+                        "description": "Уникальный идентификатор платежа в информационной системе ТСП",
+                        "example": "977639EE70494C67"
+                    },
+                    "createdDateTime": {
+                        "type": "string",
+                        "description": "Дата создания платежа",
+                        "format": "date-time"
+                    },
+                    "orderUid": {
+                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                        "type": "string",
+                        "description": "Идентификатор заказа",
+                        "example": "12EKN0170494C67"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/PaymentAmount"
+                    },
+                    "capturedAmount": {
+                        "$ref": "#/components/schemas/CapturedAmount"
+                    },
+                    "refundedAmount": {
+                        "$ref": "#/components/schemas/RefundedAmount"
+                    },
+                    "paymentMethod": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CardPaymentMethodResultDTO"
+                            }
+                        ]
+                    },
+                    "status": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CompletedStatusDTO"
+                            },
+                            {
+                                "$ref": "#/components/schemas/DeclinedStatusDTO"
+                            },
+                            {
+                                "$ref": "#/components/schemas/WaitingStatusDTO"
+                            }
+                        ]
+                    },
+                    "customer": {
+                        "$ref": "#/components/schemas/CustomerDTO"
+                    },
+                    "deviceData": {
+                        "$ref": "#/components/schemas/DeviceDataDTO"
+                    },
+                    "requirements": {
+                        "$ref": "#/components/schemas/RequirementsDTO"
+                    },
+                    "callbackUrl": {
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL отправки уведомления об операции",
+                        "example": "https://test.tochkapay.com/notification"
+                    },
+                    "successUrl": {
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL для перенаправления при успешной операции",
+                        "example": "https://test.tochkapay.com/success"
+                    },
+                    "declineUrl": {
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL для перенаправления при отклоненной операции",
+                        "example": "https://test.tochkapay.com/decline"
+                    },
+                    "comment": {
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Комментарий"
+                    },
+                    "extras": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string",
+                            "description": "Дополнительные поля с произвольной информацией"
+                        },
+                        "description": "Дополнительные поля с произвольной информацией"
+                    },
+                    "receiverData": {
+                        "$ref": "#/components/schemas/ReceiverDataDTO"
+                    },
+                    "captureMode": {
+                        "type": "string",
+                        "description": "Признак двухстадийного сценария",
+                        "enum": [
+                            "AUTO",
+                            "MANUAL"
+                        ]
+                    },
+                    "isAft": {
+                        "type": "boolean",
+                        "description": "Флаг AFT операции"
+                    },
+                    "isTest": {
+                        "type": "boolean",
+                        "description": "Флаг тестовой операции"
+                    }
+                }
+            },
+            "ReceiverDataDTO": {
+                "type": "object",
+                "properties": {
+                    "pan": {
+                        "pattern": "^\\d{13,19}$",
+                        "type": "string",
+                        "description": "Номер карты получателя",
+                        "example": "22279992308606"
+                    },
+                    "wallet": {
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Номер кошелька получателя платежа"
+                    },
+                    "inn": {
+                        "pattern": "^(\\d{10}|\\d{12})$",
+                        "type": "string",
+                        "description": "ИНН организации-эмитента",
+                        "example": "775598987121"
+                    },
+                    "phone": {
+                        "pattern": "^\\+?\\d{11,16}$",
+                        "type": "string",
+                        "description": "Номер телефона получателя платежа",
+                        "example": "79123456789"
+                    },
+                    "bic": {
+                        "pattern": "^\\d{8,11}$",
+                        "type": "string",
+                        "description": "БИК кредитной организации получателя платежа",
+                        "example": "044525104"
+                    },
+                    "bankAccount": {
+                        "pattern": "^\\d{20}$",
+                        "type": "string",
+                        "description": "Номер счета получателя платежа",
+                        "example": "044525104"
+                    }
+                },
+                "description": "Данные получателя платежа"
+            },
+            "RefundMethodResultDTO": {
+                "required": [
+                    "type"
+                ],
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "CARD"
+                        ]
+                    }
+                },
+                "description": "Дополнительные данные возврата"
+            },
+            "RefundResponseDTO": {
+                "required": [
+                    "amount",
+                    "createdDateTime",
+                    "isReversal",
+                    "refundUid",
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "refundUid": {
+                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                        "type": "string",
+                        "description": "Уникальный идентификатор возврата в информационной системе ТСП"
+                    },
+                    "createdDateTime": {
+                        "type": "string",
+                        "description": "Дата создания операции в формате ISO8601",
+                        "format": "date-time"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyDTO"
+                    },
+                    "status": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CompletedStatusDTO"
+                            },
+                            {
+                                "$ref": "#/components/schemas/DeclinedStatusDTO"
+                            },
+                            {
+                                "$ref": "#/components/schemas/WaitingStatusDTO"
+                            }
+                        ]
+                    },
+                    "callbackUrl": {
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL отправки уведомления об операции",
+                        "example": "https://test.tochkapay.com/notification"
+                    },
+                    "comment": {
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Дополнительное описание возврата",
+                        "example": "Возврат за услугу"
+                    },
+                    "refundMethodResult": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CardRefundMethodResultDTO"
+                            }
+                        ]
+                    },
+                    "isReversal": {
+                        "type": "boolean",
+                        "description": "Признак использования операции отмены"
+                    }
+                }
+            },
+            "RequirementsDTO": {
+                "required": [
+                    "threeDS"
+                ],
+                "type": "object",
+                "properties": {
+                    "threeDS": {
+                        "$ref": "#/components/schemas/ThreeDSRequirementsDTO"
+                    }
+                },
+                "description": "Требования для дополнительной аутентификации клиента"
+            },
+            "ResponseStatusDTO": {
+                "required": [
+                    "changedDateTime",
+                    "value"
+                ],
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string",
+                        "description": "Значение статуса операции",
+                        "enum": [
+                            "WAITING",
+                            "DECLINED",
+                            "COMPLETED"
+                        ]
+                    },
+                    "changedDateTime": {
+                        "type": "string",
+                        "description": "Дата обновления платежа",
+                        "format": "date-time"
+                    }
+                },
+                "description": "Статус платежа"
+            },
+            "SuccessWrappedResponseDTO": {
+                "required": [
+                    "Data",
+                    "Links",
+                    "Meta"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/WrappedResponseDTOCaptureResponseDTO"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "Data": {
+                                "type": "object",
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/components/schemas/CaptureResponseDTO"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/RefundResponseDTO"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/PaymentResponseDTO"
+                                    }
+                                ]
+                            },
+                            "Links": {
+                                "$ref": "#/components/schemas/LinksDTO"
+                            },
+                            "Meta": {
+                                "$ref": "#/components/schemas/MetaDTO"
+                            }
+                        }
+                    }
+                ]
+            },
+            "ThreeDSRequirementsDTO": {
+                "required": [
+                    "acsUrl",
+                    "paReq"
+                ],
+                "type": "object",
+                "properties": {
+                    "paReq": {
+                        "maxLength": 16384,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Сообщение для передачи в ACS банка-эмитента через браузер клиента",
+                        "example": "BC58+5698AE46DE4=="
+                    },
+                    "acsUrl": {
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL ACS сервера банка-эмитента для перенаправления клиента",
+                        "example": "https://example.tochkapayment.ru/acs/"
+                    }
+                },
+                "description": "Данные для аутентификации банковских карт по протоколам 3DS и 3DS 2.0"
+            },
+            "WaitingStatusDTO": {
+                "required": [
+                    "changedDateTime",
+                    "value"
+                ],
+                "type": "object",
+                "description": "WAITING",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ResponseStatusDTO"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "changedDateTime": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "value": {
+                                "type": "string",
+                                "enum": [
+                                    "WAITING",
+                                    "DECLINED",
+                                    "COMPLETED"
+                                ]
+                            }
+                        }
+                    }
+                ]
             },
             "CardPaymentMethodDTO": {
                 "required": [
@@ -1271,132 +1885,6 @@
                     }
                 }
             },
-            "CustomerDTO": {
-                "type": "object",
-                "properties": {
-                    "account": {
-                        "maxLength": 64,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Идентификатор пользователя",
-                        "example": "E268443E43D93DAB7EBEF303BBE9642F"
-                    },
-                    "email": {
-                        "maxLength": 64,
-                        "minLength": 1,
-                        "pattern": "^[^@\\s]+@[^@\\s]+$",
-                        "type": "string",
-                        "description": "E-mail пользователя",
-                        "example": "pay@tochka.com"
-                    },
-                    "phone": {
-                        "pattern": "^\\+?\\d{11,16}$",
-                        "type": "string",
-                        "description": "Номер телефона пользователя",
-                        "example": "79123456789"
-                    },
-                    "bic": {
-                        "pattern": "^\\d{8,11}$",
-                        "type": "string",
-                        "description": "БИК банка, выпустившего карту",
-                        "example": "044525104"
-                    },
-                    "bankAccount": {
-                        "pattern": "^\\d{20}$",
-                        "type": "string",
-                        "description": "Номер счета плательщика",
-                        "example": "044525104"
-                    },
-                    "firstName": {
-                        "maxLength": 64,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Имя покупателя",
-                        "example": "Ivan"
-                    },
-                    "middleName": {
-                        "maxLength": 64,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Отчество покупателя",
-                        "example": "Ivanov"
-                    },
-                    "lastName": {
-                        "maxLength": 64,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Фамилия покупателя",
-                        "example": "Ivanov"
-                    },
-                    "inn": {
-                        "pattern": "^(\\d{10}|\\d{12})$",
-                        "type": "string",
-                        "description": "ИНН покупателя",
-                        "example": "775598987121"
-                    },
-                    "bankMemberId": {
-                        "pattern": "^\\d{12}$",
-                        "type": "string",
-                        "description": "Идентификатор банка покупателя",
-                        "example": "100000000284"
-                    },
-                    "simpleAddress": {
-                        "maxLength": 256,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Адрес покупателя",
-                        "example": "Verhnyaya Radishchevskaya ulica, dom 2/1"
-                    },
-                    "address": {
-                        "$ref": "#/components/schemas/AddressDTO"
-                    }
-                }
-            },
-            "DeviceDataDTO": {
-                "type": "object",
-                "properties": {
-                    "ip": {
-                        "pattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
-                        "type": "string",
-                        "description": "IP Адрес клиента",
-                        "example": "127.0.0.1"
-                    },
-                    "dateTime": {
-                        "type": "string",
-                        "description": "Локальное время клиента в формате формате ISO8601",
-                        "format": "date-time"
-                    },
-                    "screenResolution": {
-                        "pattern": "^\\d{1,5}x\\d{1,4}$",
-                        "type": "string",
-                        "description": "Разрешение экрана клиента",
-                        "example": "1024x768"
-                    },
-                    "timeOnPage": {
-                        "type": "integer",
-                        "description": "Время просмотра страницы браузераа",
-                        "format": "int64",
-                        "example": 732
-                    },
-                    "userAgent": {
-                        "maxLength": 1024,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Данные о браузере клиента",
-                        "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
-                    },
-                    "fingerprint": {
-                        "maxLength": 2048,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Уникальный идентификатор устройства клиента",
-                        "example": "52609E00B7EE307E79EB100099B9A8BF"
-                    }
-                }
-            },
-            "MoneyDTO": {
-                "$ref": "#/components/schemas/PaymentAmount"
-            },
             "PaymentMethodDTO": {
                 "required": [
                     "type"
@@ -1414,47 +1902,6 @@
                 "description": "Метод платежа",
                 "discriminator": {
                     "propertyName": "type"
-                }
-            },
-            "ReceiverDataDTO": {
-                "type": "object",
-                "properties": {
-                    "pan": {
-                        "pattern": "^\\d{13,19}$",
-                        "type": "string",
-                        "description": "Номер карты получателя",
-                        "example": "22279992308606"
-                    },
-                    "wallet": {
-                        "maxLength": 64,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Номер кошелька получателя платежа"
-                    },
-                    "inn": {
-                        "pattern": "^(\\d{10}|\\d{12})$",
-                        "type": "string",
-                        "description": "ИНН организации-эмитента",
-                        "example": "775598987121"
-                    },
-                    "phone": {
-                        "pattern": "^\\+?\\d{11,16}$",
-                        "type": "string",
-                        "description": "Номер телефона получателя платежа",
-                        "example": "79123456789"
-                    },
-                    "bic": {
-                        "pattern": "^\\d{8,11}$",
-                        "type": "string",
-                        "description": "БИК кредитной организации получателя платежа",
-                        "example": "044525104"
-                    },
-                    "bankAccount": {
-                        "pattern": "^\\d{20}$",
-                        "type": "string",
-                        "description": "Номер счета получателя платежа",
-                        "example": "044525104"
-                    }
                 }
             },
             "WrappedRequestDTOCreatePaymentRequestDTO": {
@@ -1569,7 +2016,7 @@
                     "refundUid": {
                         "pattern": "^[0-9a-zA-Z-]{1,64}$",
                         "type": "string",
-                        "description": "Идентификатор операции"
+                        "description": "Уникальный идентификатор возврата в информационной системе ТСП"
                     },
                     "amount": {
                         "$ref": "#/components/schemas/MoneyDTO"
@@ -1610,7 +2057,9 @@
                 "properties": {
                     "captureUid": {
                         "pattern": "^[0-9a-zA-Z-]{1,64}$",
-                        "type": "string"
+                        "type": "string",
+                        "description": "Идентификатор подтверждения платежа в информационной системе ТСП",
+                        "example": "8H7GSEE7018GC67"
                     },
                     "amount": {
                         "$ref": "#/components/schemas/MoneyDTO"
@@ -1712,6 +2161,28 @@
                     "type": "string"
                 },
                 "example": "977639EE70494C67"
+            },
+            "captureUid": {
+                "name": "captureUid",
+                "in": "path",
+                "description": "Идентификатор подтверждения платежа в информационной системе ТСП",
+                "required": true,
+                "schema": {
+                    "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                    "type": "string"
+                },
+                "example": "8H7GSEE7018GC67"
+            },
+            "refundUid": {
+                "name": "refundUid",
+                "in": "path",
+                "description": "Идентификатор возврата в информационной системе ТСП",
+                "required": true,
+                "schema": {
+                    "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                    "type": "string"
+                },
+                "example": "8H7GSEE7018GC67"
             }
         }
     }
