@@ -484,23 +484,11 @@
                 "responses": {
                     "200": {
                         "description": "Success",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOList"
-                                }
-                            }
-                        }
+                        "content": {}
                     },
                     "400": {
                         "description": "Bad request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOList"
-                                }
-                            }
-                        }
+                        "content": {}
                     }
                 }
             },
@@ -664,23 +652,11 @@
                 "responses": {
                     "200": {
                         "description": "Success",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOList"
-                                }
-                            }
-                        }
+                        "content": {}
                     },
                     "400": {
                         "description": "Bad request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOList"
-                                }
-                            }
-                        }
+                        "content": {}
                     }
                 }
             },
@@ -1270,13 +1246,12 @@
                     }
                 ]
             },
-            "CompletedStatusDTO": {
+            "Completed": {
                 "required": [
                     "changedDateTime",
                     "value"
                 ],
                 "type": "object",
-                "description": "COMPLETED",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/ResponseStatusDTO"
@@ -1334,7 +1309,7 @@
                 },
                 "description": "Объект данных платежного токена"
             },
-            "DeclinedStatusDTO": {
+            "Declined": {
                 "required": [
                     "changedDateTime",
                     "reason",
@@ -1342,7 +1317,6 @@
                     "value"
                 ],
                 "type": "object",
-                "description": "DECLINED",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/ResponseStatusDTO"
@@ -1478,7 +1452,7 @@
                         "format": "date-time"
                     }
                 },
-                "description": "Статус платежа"
+                "description": "Статус операции"
             },
             "ThreeDSRequirementsDTO": {
                 "required": [
@@ -1505,13 +1479,12 @@
                 },
                 "description": "Данные для аутентификации банковских карт по протоколам 3DS и 3DS 2.0"
             },
-            "WaitingStatusDTO": {
+            "Waiting": {
                 "required": [
                     "changedDateTime",
                     "value"
                 ],
                 "type": "object",
-                "description": "WAITING",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/ResponseStatusDTO"
@@ -1592,13 +1565,13 @@
                             "status": {
                                 "oneOf": [
                                     {
-                                        "$ref": "#/components/schemas/CompletedStatusDTO"
+                                        "$ref": "#/components/schemas/Completed"
                                     },
                                     {
-                                        "$ref": "#/components/schemas/DeclinedStatusDTO"
+                                        "$ref": "#/components/schemas/Declined"
                                     },
                                     {
-                                        "$ref": "#/components/schemas/WaitingStatusDTO"
+                                        "$ref": "#/components/schemas/Waiting"
                                     }
                                 ]
                             },
@@ -1751,13 +1724,13 @@
                             "status": {
                                 "oneOf": [
                                     {
-                                        "$ref": "#/components/schemas/CompletedStatusDTO"
+                                        "$ref": "#/components/schemas/Completed"
                                     },
                                     {
-                                        "$ref": "#/components/schemas/DeclinedStatusDTO"
+                                        "$ref": "#/components/schemas/Declined"
                                     },
                                     {
-                                        "$ref": "#/components/schemas/WaitingStatusDTO"
+                                        "$ref": "#/components/schemas/Waiting"
                                     }
                                 ]
                             },
@@ -1867,13 +1840,13 @@
                             "status": {
                                 "oneOf": [
                                     {
-                                        "$ref": "#/components/schemas/CompletedStatusDTO"
+                                        "$ref": "#/components/schemas/Completed"
                                     },
                                     {
-                                        "$ref": "#/components/schemas/DeclinedStatusDTO"
+                                        "$ref": "#/components/schemas/Declined"
                                     },
                                     {
-                                        "$ref": "#/components/schemas/WaitingStatusDTO"
+                                        "$ref": "#/components/schemas/Waiting"
                                     }
                                 ]
                             },
@@ -2008,22 +1981,6 @@
                 "properties": {
                     "Data": {
                         "$ref": "#/components/schemas/CompleteRequestDTO"
-                    }
-                }
-            },
-            "WrappedResponseDTOList": {
-                "required": [
-                    "Data",
-                    "Links",
-                    "Meta"
-                ],
-                "type": "object",
-                "properties": {
-                    "Links": {
-                        "$ref": "#/components/schemas/LinksDTO"
-                    },
-                    "Meta": {
-                        "$ref": "#/components/schemas/MetaDTO"
                     }
                 }
             }
