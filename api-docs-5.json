@@ -29,7 +29,7 @@
         }
     ],
     "paths": {
-        "/v1/sites/{siteUid}/payments/{paymentUid}": {
+        "/{apiVersion}/sites/{siteUid}/payments/{paymentUid}": {
             "get": {
                 "tags": [
                     "Платежи"
@@ -57,6 +57,18 @@
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -65,7 +77,29 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOPaymentResponseDTO"
+                                    "$ref": "#/components/schemas/PaymentResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "HTTPBadRequest",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -77,7 +111,7 @@
                     "Платежи"
                 ],
                 "summary": "Создание платежа",
-                "description": "Создать платежную транзакцию.",
+                "description": "Создать платежную транзакцию",
                 "operationId": "createPayment",
                 "parameters": [
                     {
@@ -99,6 +133,18 @@
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
+                        }
                     }
                 ],
                 "requestBody": {
@@ -117,7 +163,29 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOPaymentResponseDTO"
+                                    "$ref": "#/components/schemas/PaymentResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "HTTPBadRequest",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -125,7 +193,7 @@
                 }
             }
         },
-        "/v1/sites/{siteUid}/payments/{paymentUid}/refunds/{refundUid}": {
+        "/{apiVersion}/sites/{siteUid}/payments/{paymentUid}/refunds/{refundUid}": {
             "get": {
                 "tags": [
                     "Возвраты"
@@ -163,25 +231,49 @@
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTORefundResponseDTO"
+                                    "$ref": "#/components/schemas/RefundResponseDTO"
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "HTTPBadRequest",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTORefundResponseDTO"
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -225,6 +317,18 @@
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
+                        }
                     }
                 ],
                 "requestBody": {
@@ -239,21 +343,33 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTORefundResponseDTO"
+                                    "$ref": "#/components/schemas/RefundResponseDTO"
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "HTTPBadRequest",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTORefundResponseDTO"
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -261,13 +377,13 @@
                 }
             }
         },
-        "/v1/sites/{siteUid}/payments/{paymentUid}/captures/{captureUid}": {
+        "/{apiVersion}/sites/{siteUid}/payments/{paymentUid}/captures/{captureUid}": {
             "get": {
                 "tags": [
                     "Подтверждение"
                 ],
                 "summary": "Статус подтверждения",
-                "description": "Получить статус указанного подтверждения платежа.",
+                "description": "Получить статус указанного подтверждения платежа",
                 "operationId": "getCapture",
                 "parameters": [
                     {
@@ -299,25 +415,49 @@
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOCaptureResponseDTO"
+                                    "$ref": "#/components/schemas/CaptureResponseDTO"
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "HTTPBadRequest",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOCaptureResponseDTO"
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -329,7 +469,7 @@
                     "Подтверждение"
                 ],
                 "summary": "Подтверждение платежа",
-                "description": "Подтвердить платеж после холдирования средств.",
+                "description": "Подтвердить платеж после холдирования средств",
                 "operationId": "createCapture",
                 "parameters": [
                     {
@@ -361,6 +501,18 @@
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
+                        }
                     }
                 ],
                 "requestBody": {
@@ -375,21 +527,33 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOCaptureResponseDTO"
+                                    "$ref": "#/components/schemas/CaptureResponseDTO"
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "HTTPBadRequest",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOCaptureResponseDTO"
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -397,13 +561,13 @@
                 }
             }
         },
-        "/v1/sites/{siteUid}/payments": {
+        "/{apiVersion}/sites/{siteUid}/payments": {
             "post": {
                 "tags": [
                     "Платежи"
                 ],
                 "summary": "Создание платежа",
-                "description": "Создать платежную транзакцию.",
+                "description": "Создать платежную транзакцию",
                 "operationId": "createPayment_1",
                 "parameters": [
                     {
@@ -414,6 +578,18 @@
                         "schema": {
                             "pattern": "^[0-9a-zA-Z-_]{1,64}",
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
                         }
                     }
                 ],
@@ -429,21 +605,33 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOPaymentResponseDTO"
+                                    "$ref": "#/components/schemas/PaymentResponseDTO"
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "HTTPBadRequest",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -451,13 +639,13 @@
                 }
             }
         },
-        "/v1/sites/{siteUid}/payments/{paymentUid}/refunds": {
+        "/{apiVersion}/sites/{siteUid}/payments/{paymentUid}/refunds": {
             "get": {
                 "tags": [
                     "Возвраты"
                 ],
                 "summary": "Статус возвратов",
-                "description": "Получить статусы всех возвратов для данного платежа.",
+                "description": "Получить статусы всех возвратов для данного платежа",
                 "operationId": "getRefunds",
                 "parameters": [
                     {
@@ -479,16 +667,52 @@
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
-                        "content": {}
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RefundResponseListDTO"
+                                }
+                            }
+                        }
                     },
                     "400": {
-                        "description": "Bad request",
-                        "content": {}
+                        "description": "HTTPBadRequest",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -519,6 +743,18 @@
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
+                        }
                     }
                 ],
                 "requestBody": {
@@ -533,21 +769,33 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTORefundResponseDTO"
+                                    "$ref": "#/components/schemas/RefundResponseDTO"
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "HTTPBadRequest",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTORefundResponseDTO"
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -555,13 +803,13 @@
                 }
             }
         },
-        "/v1/sites/{siteUid}/payments/{paymentUid}/complete": {
+        "/{apiVersion}/sites/{siteUid}/payments/{paymentUid}/complete": {
             "post": {
                 "tags": [
                     "Завершение аутентификации"
                 ],
                 "summary": "Завершение аутентификации",
-                "description": "После успешного прохождения дополнительной аутентификации, ТСП необходимо отправить запрос с параметрами соответствующими типу дополнительной аутентификации для завершения проверки.",
+                "description": "После успешного прохождения дополнительной аутентификации, ТСП необходимо отправить запрос с параметрами соответствующими типу дополнительной аутентификации для завершения проверки",
                 "operationId": "completePayment",
                 "parameters": [
                     {
@@ -583,6 +831,18 @@
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
+                        }
                     }
                 ],
                 "requestBody": {
@@ -597,21 +857,33 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOPaymentResponseDTO"
+                                    "$ref": "#/components/schemas/PaymentResponseDTO"
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "HTTPBadRequest",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOPaymentResponseDTO"
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -619,7 +891,7 @@
                 }
             }
         },
-        "/v1/sites/{siteUid}/payments/{paymentUid}/captures": {
+        "/{apiVersion}/sites/{siteUid}/payments/{paymentUid}/captures": {
             "get": {
                 "tags": [
                     "Подтверждение"
@@ -647,16 +919,52 @@
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
-                        "content": {}
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CaptureResponseListDTO"
+                                }
+                            }
+                        }
                     },
                     "400": {
-                        "description": "Bad request",
-                        "content": {}
+                        "description": "HTTPBadRequest",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -665,7 +973,7 @@
                     "Подтверждение"
                 ],
                 "summary": "Подтверждение платежа",
-                "description": "Подтвердить платеж после холдирования средств.",
+                "description": "Подтвердить платеж после холдирования средств",
                 "operationId": "createCapture_1",
                 "parameters": [
                     {
@@ -687,6 +995,18 @@
                             "pattern": "^[0-9a-zA-Z-]{1,64}$",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "description": "Версия API",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1.0"
+                            ]
+                        }
                     }
                 ],
                 "requestBody": {
@@ -701,21 +1021,33 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOCaptureResponseDTO"
+                                    "$ref": "#/components/schemas/CaptureResponseDTO"
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "HTTPBadRequest",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WrappedResponseDTOCaptureResponseDTO"
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                },
+                                "example": {
+                                    "code": "400",
+                                    "id": "c397b21a-d998-4c4d-9471-e60eaf816b87",
+                                    "message": "Что то пошло не так",
+                                    "Errors": [
+                                        {
+                                            "errorCode": "HTTPBadRequest",
+                                            "message": "Something going wrong",
+                                            "url": "http://enter.tochka.com/open-banking/docs"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -1012,7 +1344,7 @@
                         "minLength": 1,
                         "type": "string",
                         "description": "Отчество покупателя",
-                        "example": "Ivanov"
+                        "example": "Ivanovich"
                     },
                     "lastName": {
                         "maxLength": 64,
@@ -1179,7 +1511,7 @@
                                 "pattern": "^\\d{4,8}\\*{1,11}\\d{2}$",
                                 "type": "string",
                                 "description": "Маскированный номер карты",
-                                "example": "444444******0563"
+                                "example": "41111111******11"
                             },
                             "expirationDate": {
                                 "pattern": "(?:0?[1-9]|1[0-2])/[0-9]{2}",
@@ -1202,7 +1534,8 @@
                             "authCode": {
                                 "pattern": "^\\d{6}$",
                                 "type": "string",
-                                "description": "Auth-code платежа"
+                                "description": "Auth-code платежа",
+                                "example": "347328"
                             },
                             "createdToken": {
                                 "$ref": "#/components/schemas/CreatedTokenDTO"
@@ -1212,35 +1545,6 @@
                                 "enum": [
                                     "CARD"
                                 ]
-                            }
-                        }
-                    }
-                ]
-            },
-            "CardRefundMethodResultDTO": {
-                "required": [
-                    "type"
-                ],
-                "type": "object",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/RefundMethodResultDTO"
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "rrn": {
-                                "maxLength": 12,
-                                "minLength": 12,
-                                "type": "string",
-                                "description": "RRN операции",
-                                "example": "003235873473"
-                            },
-                            "authCode": {
-                                "pattern": "^\\d{6}$",
-                                "type": "string",
-                                "description": "Auth-code операции",
-                                "example": "003235873473"
                             }
                         }
                     }
@@ -1297,7 +1601,7 @@
                         "minLength": 1,
                         "type": "string",
                         "description": "Маскированный номер карты, для которой выпущен токен",
-                        "example": "444444******0563"
+                        "example": "41111111******11"
                     },
                     "account": {
                         "maxLength": 64,
@@ -1355,35 +1659,6 @@
                     }
                 ]
             },
-            "LinksDTO": {
-                "required": [
-                    "self"
-                ],
-                "type": "object",
-                "properties": {
-                    "self": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string",
-                        "example": "https://enter.tochka.com/uapi/pay"
-                    }
-                },
-                "description": "Links"
-            },
-            "MetaDTO": {
-                "required": [
-                    "totalPages"
-                ],
-                "type": "object",
-                "properties": {
-                    "totalPages": {
-                        "type": "integer",
-                        "format": "int32"
-                    }
-                },
-                "description": "Meta"
-            },
             "PaymentMethodResultDTO": {
                 "required": [
                     "type"
@@ -1403,117 +1678,7 @@
                     "propertyName": "type"
                 }
             },
-            "RefundMethodResultDTO": {
-                "required": [
-                    "type"
-                ],
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": [
-                            "CARD"
-                        ]
-                    }
-                },
-                "description": "Дополнительные данные возврата"
-            },
-            "RequirementsDTO": {
-                "required": [
-                    "threeDS"
-                ],
-                "type": "object",
-                "properties": {
-                    "threeDS": {
-                        "$ref": "#/components/schemas/ThreeDSRequirementsDTO"
-                    }
-                },
-                "description": "Требования для дополнительной аутентификации клиента"
-            },
-            "ResponseStatusDTO": {
-                "required": [
-                    "changedDateTime",
-                    "value"
-                ],
-                "type": "object",
-                "properties": {
-                    "value": {
-                        "type": "string",
-                        "description": "Значение статуса операции",
-                        "enum": [
-                            "WAITING",
-                            "DECLINED",
-                            "COMPLETED"
-                        ]
-                    },
-                    "changedDateTime": {
-                        "type": "string",
-                        "description": "Дата обновления платежа",
-                        "format": "date-time"
-                    }
-                },
-                "description": "Статус операции"
-            },
-            "ThreeDSRequirementsDTO": {
-                "required": [
-                    "acsUrl",
-                    "paReq"
-                ],
-                "type": "object",
-                "properties": {
-                    "paReq": {
-                        "maxLength": 16384,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Сообщение для передачи в ACS банка-эмитента через браузер клиента",
-                        "example": "BC58+5698AE46DE4=="
-                    },
-                    "acsUrl": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string",
-                        "description": "URL ACS сервера банка-эмитента для перенаправления клиента",
-                        "example": "https://example.tochkapayment.ru/acs/"
-                    }
-                },
-                "description": "Данные для аутентификации банковских карт по протоколам 3DS и 3DS 2.0"
-            },
-            "Waiting": {
-                "required": [
-                    "changedDateTime",
-                    "value"
-                ],
-                "type": "object",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/ResponseStatusDTO"
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "changedDateTime": {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "value": {
-                                "type": "string",
-                                "enum": [
-                                    "WAITING",
-                                    "DECLINED",
-                                    "COMPLETED"
-                                ]
-                            }
-                        }
-                    }
-                ]
-            },
-            "WrappedResponseDTOPaymentResponseDTO": {
-                "required": [
-                    "Data",
-                    "Links",
-                    "Meta"
-                ],
+            "PaymentResponseDTO": {
                 "type": "object",
                 "properties": {
                     "Data": {
@@ -1644,12 +1809,124 @@
                         }
                     },
                     "Links": {
-                        "$ref": "#/components/schemas/LinksDTO"
+                        "required": [
+                            "self"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "self": {
+                                "maxLength": 2083,
+                                "minLength": 1,
+                                "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                                "type": "string",
+                                "example": "https://enter.tochka.com/uapi/pay"
+                            }
+                        },
+                        "description": "Links"
                     },
                     "Meta": {
-                        "$ref": "#/components/schemas/MetaDTO"
+                        "required": [
+                            "totalPages"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "totalPages": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        }
                     }
                 }
+            },
+            "RequirementsDTO": {
+                "required": [
+                    "threeDS"
+                ],
+                "type": "object",
+                "properties": {
+                    "threeDS": {
+                        "$ref": "#/components/schemas/ThreeDSRequirementsDTO"
+                    }
+                },
+                "description": "Требования для дополнительной аутентификации клиента"
+            },
+            "ResponseStatusDTO": {
+                "required": [
+                    "changedDateTime",
+                    "value"
+                ],
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string",
+                        "description": "Значение статуса операции",
+                        "enum": [
+                            "WAITING",
+                            "DECLINED",
+                            "COMPLETED"
+                        ]
+                    },
+                    "changedDateTime": {
+                        "type": "string",
+                        "description": "Дата обновления платежа",
+                        "format": "date-time"
+                    }
+                },
+                "description": "Статус операции"
+            },
+            "ThreeDSRequirementsDTO": {
+                "required": [
+                    "acsUrl",
+                    "paReq"
+                ],
+                "type": "object",
+                "properties": {
+                    "paReq": {
+                        "maxLength": 16384,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Сообщение для передачи в ACS банка-эмитента через браузер клиента",
+                        "example": "BC58+5698AE46DE4=="
+                    },
+                    "acsUrl": {
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL ACS сервера банка-эмитента для перенаправления клиента",
+                        "example": "https://example.tochkapayment.ru/acs/"
+                    }
+                },
+                "description": "Данные для аутентификации банковских карт по протоколам 3DS и 3DS 2.0"
+            },
+            "Waiting": {
+                "required": [
+                    "changedDateTime",
+                    "value"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ResponseStatusDTO"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "changedDateTime": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "value": {
+                                "type": "string",
+                                "enum": [
+                                    "WAITING",
+                                    "DECLINED",
+                                    "COMPLETED"
+                                ]
+                            }
+                        }
+                    }
+                ]
             },
             "RefundRequestDTO": {
                 "type": "object",
@@ -1690,12 +1967,51 @@
                     }
                 }
             },
-            "WrappedResponseDTORefundResponseDTO": {
+            "CardRefundMethodResultDTO": {
                 "required": [
-                    "Data",
-                    "Links",
-                    "Meta"
+                    "type"
                 ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/RefundMethodResultDTO"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "rrn": {
+                                "maxLength": 12,
+                                "minLength": 12,
+                                "type": "string",
+                                "description": "RRN операции",
+                                "example": "003235873473"
+                            },
+                            "authCode": {
+                                "pattern": "^\\d{6}$",
+                                "type": "string",
+                                "description": "Auth-code операции",
+                                "example": "347328"
+                            }
+                        }
+                    }
+                ]
+            },
+            "RefundMethodResultDTO": {
+                "required": [
+                    "type"
+                ],
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "CARD"
+                        ]
+                    }
+                },
+                "description": "Дополнительные данные возврата"
+            },
+            "RefundResponseDTO": {
                 "type": "object",
                 "properties": {
                     "Data": {
@@ -1711,7 +2027,8 @@
                             "refundUid": {
                                 "pattern": "^[0-9a-zA-Z-]{1,64}$",
                                 "type": "string",
-                                "description": "Уникальный идентификатор возврата в информационной системе ТСП"
+                                "description": "Уникальный идентификатор возврата в информационной системе ТСП",
+                                "example": "8H7GSEE7018GC67"
                             },
                             "createdDateTime": {
                                 "type": "string",
@@ -1763,10 +2080,32 @@
                         }
                     },
                     "Links": {
-                        "$ref": "#/components/schemas/LinksDTO"
+                        "required": [
+                            "self"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "self": {
+                                "maxLength": 2083,
+                                "minLength": 1,
+                                "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                                "type": "string",
+                                "example": "https://enter.tochka.com/uapi/pay"
+                            }
+                        },
+                        "description": "Links"
                     },
                     "Meta": {
-                        "$ref": "#/components/schemas/MetaDTO"
+                        "required": [
+                            "totalPages"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "totalPages": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        }
                     }
                 }
             },
@@ -1809,12 +2148,7 @@
                     }
                 }
             },
-            "WrappedResponseDTOCaptureResponseDTO": {
-                "required": [
-                    "Data",
-                    "Links",
-                    "Meta"
-                ],
+            "CaptureResponseDTO": {
                 "type": "object",
                 "properties": {
                     "Data": {
@@ -1867,10 +2201,256 @@
                         }
                     },
                     "Links": {
-                        "$ref": "#/components/schemas/LinksDTO"
+                        "required": [
+                            "self"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "self": {
+                                "maxLength": 2083,
+                                "minLength": 1,
+                                "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                                "type": "string",
+                                "example": "https://enter.tochka.com/uapi/pay"
+                            }
+                        },
+                        "description": "Links"
                     },
                     "Meta": {
-                        "$ref": "#/components/schemas/MetaDTO"
+                        "required": [
+                            "totalPages"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "totalPages": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        }
+                    }
+                }
+            },
+            "CompleteRequestDTO": {
+                "required": [
+                    "threeDS"
+                ],
+                "type": "object",
+                "properties": {
+                    "threeDS": {
+                        "$ref": "#/components/schemas/ThreeDSCompleteRequestDTO"
+                    }
+                }
+            },
+            "ThreeDSCompleteRequestDTO": {
+                "required": [
+                    "paRes"
+                ],
+                "type": "object",
+                "properties": {
+                    "paRes": {
+                        "maxLength": 16384,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Результат аутентификации покупателя, полученный после возврата с ACS банка-эмитента",
+                        "example": "eJxVjDsOwjAQBe+S0SWKiXHdwMhWmCbXIpZWa+O..."
+                    }
+                },
+                "description": "Данные для аутентификации банковских карт по протоколам 3DS и 3DS 2.0"
+            },
+            "WrappedRequestDTOCompleteRequestDTO": {
+                "required": [
+                    "Data"
+                ],
+                "type": "object",
+                "properties": {
+                    "Data": {
+                        "$ref": "#/components/schemas/CompleteRequestDTO"
+                    }
+                }
+            },
+            "RefundResponseListDTO": {
+                "type": "object",
+                "properties": {
+                    "Data": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "amount",
+                                "createdDateTime",
+                                "isReversal",
+                                "refundUid",
+                                "status"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "refundUid": {
+                                    "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                                    "type": "string",
+                                    "description": "Уникальный идентификатор возврата в информационной системе ТСП",
+                                    "example": "8H7GSEE7018GC67"
+                                },
+                                "createdDateTime": {
+                                    "type": "string",
+                                    "description": "Дата создания операции в формате ISO8601",
+                                    "format": "date-time"
+                                },
+                                "amount": {
+                                    "$ref": "#/components/schemas/MoneyDTO"
+                                },
+                                "status": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/Completed"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Declined"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Waiting"
+                                        }
+                                    ]
+                                },
+                                "callbackUrl": {
+                                    "maxLength": 2083,
+                                    "minLength": 1,
+                                    "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                                    "type": "string",
+                                    "description": "URL отправки уведомления об операции",
+                                    "example": "https://test.tochkapay.com/notification"
+                                },
+                                "comment": {
+                                    "maxLength": 255,
+                                    "minLength": 1,
+                                    "type": "string",
+                                    "description": "Дополнительное описание возврата",
+                                    "example": "Возврат за услугу"
+                                },
+                                "refundMethodResult": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/CardRefundMethodResultDTO"
+                                        }
+                                    ]
+                                },
+                                "isReversal": {
+                                    "type": "boolean",
+                                    "description": "Признак использования операции отмены"
+                                }
+                            }
+                        }
+                    },
+                    "Links": {
+                        "required": [
+                            "self"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "self": {
+                                "maxLength": 2083,
+                                "minLength": 1,
+                                "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                                "type": "string",
+                                "example": "https://enter.tochka.com/uapi/pay"
+                            }
+                        },
+                        "description": "Links"
+                    },
+                    "Meta": {
+                        "required": [
+                            "totalPages"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "totalPages": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        }
+                    }
+                }
+            },
+            "CaptureResponseListDTO": {
+                "type": "object",
+                "properties": {
+                    "Data": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "amount",
+                                "captureUid",
+                                "createdDateTime",
+                                "status"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "captureUid": {
+                                    "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                                    "type": "string"
+                                },
+                                "createdDateTime": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                "amount": {
+                                    "$ref": "#/components/schemas/MoneyDTO"
+                                },
+                                "status": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/Completed"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Declined"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Waiting"
+                                        }
+                                    ]
+                                },
+                                "callbackUrl": {
+                                    "maxLength": 2083,
+                                    "minLength": 1,
+                                    "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                                    "type": "string",
+                                    "description": "URL отправки уведомления об операции",
+                                    "example": "https://test.tochkapay.com/notification"
+                                },
+                                "comment": {
+                                    "maxLength": 255,
+                                    "minLength": 1,
+                                    "type": "string",
+                                    "description": "Комментарий"
+                                }
+                            }
+                        }
+                    },
+                    "Links": {
+                        "required": [
+                            "self"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "self": {
+                                "maxLength": 2083,
+                                "minLength": 1,
+                                "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                                "type": "string",
+                                "example": "https://enter.tochka.com/uapi/pay"
+                            }
+                        },
+                        "description": "Links"
+                    },
+                    "Meta": {
+                        "required": [
+                            "totalPages"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "totalPages": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        }
                     }
                 }
             },
@@ -1943,44 +2523,6 @@
                         "items": {
                             "$ref": "#/components/schemas/ErrorDetailsDTO"
                         }
-                    }
-                }
-            },
-            "CompleteRequestDTO": {
-                "required": [
-                    "threeDS"
-                ],
-                "type": "object",
-                "properties": {
-                    "threeDS": {
-                        "$ref": "#/components/schemas/ThreeDSCompleteRequestDTO"
-                    }
-                }
-            },
-            "ThreeDSCompleteRequestDTO": {
-                "required": [
-                    "paRes"
-                ],
-                "type": "object",
-                "properties": {
-                    "paRes": {
-                        "maxLength": 16384,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Результат аутентификации покупателя, полученный после возврата с ACS банка-эмитента",
-                        "example": "eJxVjDsOwjAQBe+S0SWKiXHdwMhWmCbXIpZWa+O..."
-                    }
-                },
-                "description": "Данные для аутентификации банковских карт по протоколам 3DS и 3DS 2.0"
-            },
-            "WrappedRequestDTOCompleteRequestDTO": {
-                "required": [
-                    "Data"
-                ],
-                "type": "object",
-                "properties": {
-                    "Data": {
-                        "$ref": "#/components/schemas/CompleteRequestDTO"
                     }
                 }
             }
