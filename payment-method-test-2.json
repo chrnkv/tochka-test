@@ -1367,10 +1367,7 @@
                         ]
                     }
                 },
-                "description": "Метод платежа",
-                "discriminator": {
-                    "propertyName": "type"
-                }
+                "description": "Метод платежа"
             },
             "ReceiverDataDTO": {
                 "type": "object",
@@ -1633,10 +1630,7 @@
                         ]
                     }
                 },
-                "description": "Метод платежа",
-                "discriminator": {
-                    "propertyName": "type"
-                }
+                "description": "Метод платежа"
             },
             "PaymentResponseDTO": {
                 "type": "object",
