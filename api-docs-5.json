@@ -112,7 +112,7 @@
                 ],
                 "summary": "Создание платежа",
                 "description": "Создать платежную транзакцию",
-                "operationId": "createPayment",
+                "operationId": "createPaymentByPaymentUid",
                 "parameters": [
                     {
                         "name": "siteUid",
@@ -286,7 +286,7 @@
                 ],
                 "summary": "Создание операции возврата",
                 "description": "Запрос предназначен для возврата средств по завершенному платежу",
-                "operationId": "createRefund",
+                "operationId": "createRefundByRefundUid",
                 "parameters": [
                     {
                         "name": "siteUid",
@@ -469,8 +469,8 @@
                     "Подтверждение"
                 ],
                 "summary": "Подтверждение платежа",
-                "description": "Подтвердить платеж после холдирования средств",
-                "operationId": "createCapture",
+                "description": "Подтвердить платеж после холдирования средств. Данный запрос необходим для подтверждения операции при двустадийном сценарии проведения платежа. **Возможно только однократное успешное подтверждение платежа.**",
+                "operationId": "createCaptureByCaptureUid",
                 "parameters": [
                     {
                         "name": "siteUid",
@@ -568,7 +568,7 @@
                 ],
                 "summary": "Создание платежа",
                 "description": "Создать платежную транзакцию",
-                "operationId": "createPayment_1",
+                "operationId": "createPayment",
                 "parameters": [
                     {
                         "name": "siteUid",
@@ -722,7 +722,7 @@
                 ],
                 "summary": "Создание операции возврата",
                 "description": "Запрос предназначен для возврата средств по завершенному платежу",
-                "operationId": "createRefund_1",
+                "operationId": "createRefund",
                 "parameters": [
                     {
                         "name": "siteUid",
@@ -896,8 +896,8 @@
                 "tags": [
                     "Подтверждение"
                 ],
-                "summary": "Статус подтверждения",
-                "description": "Получить статус указанного подтверждения платежа",
+                "summary": "Список подтверждений платежа",
+                "description": "Получить список попыток подтверждения платежа",
                 "operationId": "getCaptures",
                 "parameters": [
                     {
@@ -973,8 +973,8 @@
                     "Подтверждение"
                 ],
                 "summary": "Подтверждение платежа",
-                "description": "Подтвердить платеж после холдирования средств",
-                "operationId": "createCapture_1",
+                "description": "Подтвердить платеж после холдирования средств. Данный запрос необходим для подтверждения операции при двустадийном сценарии проведения платежа. **Возможно только однократное успешное подтверждение платежа.**",
+                "operationId": "createCapture",
                 "parameters": [
                     {
                         "name": "siteUid",
@@ -1152,7 +1152,7 @@
                 },
                 "description": "Адрес покупателя"
             },
-            "CardPaymentMethodDTO": {
+            "CardPaymentMethod": {
                 "required": [
                     "expirationDate",
                     "pan",
@@ -1189,10 +1189,6 @@
                                 "description": "Имя клиента, указанное на банковской карте",
                                 "example": "CARD HOLDER"
                             },
-                            "createToken": {
-                                "type": "boolean",
-                                "description": "Флаг для выпуска платежного токена"
-                            },
                             "type": {
                                 "type": "string",
                                 "enum": [
@@ -1208,7 +1204,6 @@
                     "amount",
                     "captureMode",
                     "extras",
-                    "isAft",
                     "paymentMethod"
                 ],
                 "type": "object",
@@ -1222,7 +1217,7 @@
                     "orderUid": {
                         "pattern": "^[0-9a-zA-Z-]{1,64}$",
                         "type": "string",
-                        "description": "Идентификатор заказа",
+                        "description": "Уникальный идентификатор заказа в информационной системе ТСП",
                         "example": "12EKN0170494C67"
                     },
                     "amount": {
@@ -1231,15 +1226,12 @@
                     "paymentMethod": {
                         "oneOf": [
                             {
-                                "$ref": "#/components/schemas/CardPaymentMethodDTO"
+                                "$ref": "#/components/schemas/CardPaymentMethod"
                             }
                         ]
                     },
                     "customer": {
                         "$ref": "#/components/schemas/CustomerDTO"
-                    },
-                    "deviceData": {
-                        "$ref": "#/components/schemas/DeviceDataDTO"
                     },
                     "callbackUrl": {
                         "maxLength": 2083,
@@ -1275,24 +1267,20 @@
                         "type": "object",
                         "additionalProperties": {
                             "type": "string",
-                            "description": "Дополнительные поля с произвольной информацией"
+                            "description": "Дополнительные поля с произвольной информацией.\n Пример формата: `{\"property1\": \"string\"}`"
                         },
-                        "description": "Дополнительные поля с произвольной информацией"
+                        "description": "Дополнительные поля с произвольной информацией.\n Пример формата: `{\"property1\": \"string\"}`"
                     },
                     "receiverData": {
                         "$ref": "#/components/schemas/ReceiverDataDTO"
                     },
                     "captureMode": {
                         "type": "string",
-                        "description": "Признак двухстадийного сценария",
+                        "description": "Признак двухстадийного сценария: \\n- `AUTO` — подтверждение платежа производится автоматически;  \\n- `MANUAL` — требуется подтверждение платежа последующим запросом.",
                         "enum": [
                             "AUTO",
                             "MANUAL"
                         ]
-                    },
-                    "isAft": {
-                        "type": "boolean",
-                        "description": "Флаг AFT операции"
                     }
                 }
             },
@@ -1320,18 +1308,6 @@
                         "description": "Номер телефона пользователя",
                         "example": "79123456789"
                     },
-                    "bic": {
-                        "pattern": "^\\d{8,11}$",
-                        "type": "string",
-                        "description": "БИК банка, выпустившего карту",
-                        "example": "044525104"
-                    },
-                    "bankAccount": {
-                        "pattern": "^\\d{20}$",
-                        "type": "string",
-                        "description": "Номер счета плательщика",
-                        "example": "044525104"
-                    },
                     "firstName": {
                         "maxLength": 64,
                         "minLength": 1,
@@ -1353,18 +1329,6 @@
                         "description": "Фамилия покупателя",
                         "example": "Ivanov"
                     },
-                    "inn": {
-                        "pattern": "^(\\d{10}|\\d{12})$",
-                        "type": "string",
-                        "description": "ИНН покупателя",
-                        "example": "775598987121"
-                    },
-                    "bankMemberId": {
-                        "pattern": "^\\d{12}$",
-                        "type": "string",
-                        "description": "Идентификатор банка покупателя",
-                        "example": "100000000284"
-                    },
                     "simpleAddress": {
                         "maxLength": 256,
                         "minLength": 1,
@@ -1374,48 +1338,6 @@
                     },
                     "address": {
                         "$ref": "#/components/schemas/AddressDTO"
-                    }
-                }
-            },
-            "DeviceDataDTO": {
-                "type": "object",
-                "properties": {
-                    "ip": {
-                        "pattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
-                        "type": "string",
-                        "description": "IP Адрес клиента",
-                        "example": "127.0.0.1"
-                    },
-                    "dateTime": {
-                        "type": "string",
-                        "description": "Локальное время клиента в формате формате ISO8601",
-                        "format": "date-time"
-                    },
-                    "screenResolution": {
-                        "pattern": "^\\d{1,5}x\\d{1,4}$",
-                        "type": "string",
-                        "description": "Разрешение экрана клиента",
-                        "example": "1024x768"
-                    },
-                    "timeOnPage": {
-                        "type": "integer",
-                        "description": "Время просмотра страницы браузераа",
-                        "format": "int64",
-                        "example": 732
-                    },
-                    "userAgent": {
-                        "maxLength": 1024,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Данные о браузере клиента",
-                        "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
-                    },
-                    "fingerprint": {
-                        "maxLength": 2048,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Уникальный идентификатор устройства клиента",
-                        "example": "52609E00B7EE307E79EB100099B9A8BF"
                     }
                 }
             },
@@ -1436,10 +1358,7 @@
                         ]
                     }
                 },
-                "description": "Метод платежа",
-                "discriminator": {
-                    "propertyName": "type"
-                }
+                "description": "Метод платежа"
             },
             "ReceiverDataDTO": {
                 "type": "object",
@@ -1493,7 +1412,7 @@
                     }
                 }
             },
-            "CardPaymentMethodResultDTO": {
+            "CardPaymentMethodResult": {
                 "required": [
                     "maskedPan",
                     "type"
@@ -1673,10 +1592,7 @@
                         ]
                     }
                 },
-                "description": "Метод платежа",
-                "discriminator": {
-                    "propertyName": "type"
-                }
+                "description": "Метод платежа"
             },
             "PaymentResponseDTO": {
                 "type": "object",
@@ -1708,7 +1624,7 @@
                             "orderUid": {
                                 "pattern": "^[0-9a-zA-Z-]{1,64}$",
                                 "type": "string",
-                                "description": "Идентификатор заказа",
+                                "description": "Уникальный идентификатор заказа в информационной системе ТСП",
                                 "example": "12EKN0170494C67"
                             },
                             "amount": {
@@ -1723,7 +1639,7 @@
                             "paymentMethod": {
                                 "oneOf": [
                                     {
-                                        "$ref": "#/components/schemas/CardPaymentMethodResultDTO"
+                                        "$ref": "#/components/schemas/CardPaymentMethodResult"
                                     }
                                 ]
                             },
@@ -1742,9 +1658,6 @@
                             },
                             "customer": {
                                 "$ref": "#/components/schemas/CustomerDTO"
-                            },
-                            "deviceData": {
-                                "$ref": "#/components/schemas/DeviceDataDTO"
                             },
                             "requirements": {
                                 "$ref": "#/components/schemas/RequirementsDTO"
@@ -1783,24 +1696,20 @@
                                 "type": "object",
                                 "additionalProperties": {
                                     "type": "string",
-                                    "description": "Дополнительные поля с произвольной информацией"
+                                    "description": "Дополнительные поля с произвольной информацией.\n Пример формата: `{\"property1\": \"string\"}`"
                                 },
-                                "description": "Дополнительные поля с произвольной информацией"
+                                "description": "Дополнительные поля с произвольной информацией.\n Пример формата: `{\"property1\": \"string\"}`"
                             },
                             "receiverData": {
                                 "$ref": "#/components/schemas/ReceiverDataDTO"
                             },
                             "captureMode": {
                                 "type": "string",
-                                "description": "Признак двухстадийного сценария",
+                                "description": "Признак двухстадийного сценария: \\n- `AUTO` — подтверждение платежа производится автоматически;  \\n- `MANUAL` — требуется подтверждение платежа последующим запросом.",
                                 "enum": [
                                     "AUTO",
                                     "MANUAL"
                                 ]
-                            },
-                            "isAft": {
-                                "type": "boolean",
-                                "description": "Флаг AFT операции"
                             },
                             "isTest": {
                                 "type": "boolean",
