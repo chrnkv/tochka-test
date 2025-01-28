@@ -2,16 +2,13 @@
     "openapi": "3.0.1",
     "info": {
         "title": "API Приема платежей",
+        "description": "# Цифровая подпись запросов\nВ целях безопасности проведения финансовых операций через открытое API, необходимо формировать и передавать цифровую подпись запросов в заголовке `Signature` для следующих типов запросов:\n* Платеж через форму мерчанта -> создание платежа (`PUT` / `POST`)\n* Подтверждение -> подтверждение платежа (`PUT` / `POST`)\n* Возвраты -> создание операции возврата (`PUT` / `POST`)\n\nДля реализации проверки подписаных таким образом запросов мерчант должен передать нам открытый ключ на этапе подключения. \nДетали создания и передачи ключа см. в подразделе - **Формирование ключей**. \nДетали создания и передачи подписи запроса см. в подразделе - **Подпись запроса**. \n\n## Формирование ключей\nТребования к ключам:\n* алгоритм - RSA\n* размер ключа - 2048-bit\n* форма передаваемого ключа - PEM формат, закодированный в Base64 одной строкой (без переносов)\n\nПример на Bash:\n1. Сгенерировать закрытый ключ\n```sh\nopenssl genrsa -out private_key.pem 2048\n```\n2. Получить открытый ключ на основе закрытого\n```sh\nopenssl rsa -in private_key.pem -pubout -out public_key.pem\n```\n3. Закодировать открытый ключ в Base64\n```sh\nopenssl base64 -A -in public_key.pem -out public_key_base64.pem\n```\n4. В рамках подключения к API *Точки* передать полученный на предыдущем шаге `public_key_base64.pem`\n\n## Подпись запроса\nТребования к подписи:\n* hash-функция - sha256\n* заголовок для передачи подписи - `Signature`\n* форма передачи подписи - \"сырая\" подпись, закодированная в Base64 одной строкой (без переносов)\n\nПример на Bash:\n1. подготовить тело запроса (в данном случае - предположим что оно в файле request.txt)\n```txt\nhello, world\n```\n2. подписать тело запроса с помощью приватного ключа и с hash-функцией sha256 \n```sh\nopenssl dgst -sha256 -sign private_key.pem request.txt > sign_raw.txt\n```\n3. закодировать \"сырую\" подпись в Base64 \n```sh\nopenssl base64 -A -in sign_raw.txt -out sign_base64.txt\n```\n4. передавать содержимое `sign_base64.txt` в заголовке `Signature` запросов",
         "version": "1.0"
     },
     "servers": [
         {
             "url": "https://enter.tochka.com/uapi/pay/",
             "description": "Боевой сервер Production"
-        },
-        {
-            "url": "https://enter.tochka.com/sandbox/v2/pay/",
-            "description": "Сервер песочницы"
         }
     ],
     "tags": [
@@ -114,6 +111,9 @@
                 "description": "Создать платежную транзакцию",
                 "operationId": "createPaymentByPaymentUid",
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/signature"
+                    },
                     {
                         "name": "siteUid",
                         "in": "path",
@@ -288,6 +288,9 @@
                 "description": "Запрос предназначен для возврата средств по завершенному платежу",
                 "operationId": "createRefundByRefundUid",
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/signature"
+                    },
                     {
                         "name": "siteUid",
                         "in": "path",
@@ -473,6 +476,9 @@
                 "operationId": "createCaptureByCaptureUid",
                 "parameters": [
                     {
+                        "$ref": "#/components/parameters/signature"
+                    },
+                    {
                         "name": "siteUid",
                         "in": "path",
                         "required": true,
@@ -570,6 +576,9 @@
                 "description": "Создать платежную транзакцию",
                 "operationId": "createPayment",
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/signature"
+                    },
                     {
                         "name": "siteUid",
                         "in": "path",
@@ -724,6 +733,9 @@
                 "description": "Запрос предназначен для возврата средств по завершенному платежу",
                 "operationId": "createRefund",
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/signature"
+                    },
                     {
                         "name": "siteUid",
                         "in": "path",
@@ -977,6 +989,9 @@
                 "operationId": "createCapture",
                 "parameters": [
                     {
+                        "$ref": "#/components/parameters/signature"
+                    },
+                    {
                         "name": "siteUid",
                         "in": "path",
                         "required": true,
@@ -1175,19 +1190,36 @@
                             "expirationDate": {
                                 "pattern": "(?:0?[1-9]|1[0-2])/[0-9]{2}",
                                 "type": "string",
-                                "description": "Срок действия банковской карты"
+                                "description": "Срок действия банковской карты",
+                                "example": "12/28"
                             },
                             "cvv2": {
                                 "pattern": "^\\d{3}$",
                                 "type": "string",
                                 "description": "CVV2/CVC2 на банковской карте",
-                                "example": "12/28"
+                                "example": "123"
                             },
                             "holderName": {
                                 "pattern": "^[0-9a-zA-Z-/ _.']{1,26}$",
                                 "type": "string",
                                 "description": "Имя клиента, указанное на банковской карте",
                                 "example": "CARD HOLDER"
+                            },
+                            "tokenizationCredentials": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/CredentialCaptured"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/CredentialOnFile"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/Installment"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/Recurring"
+                                    }
+                                ]
                             },
                             "type": {
                                 "type": "string",
@@ -1271,9 +1303,6 @@
                         },
                         "description": "Дополнительные поля с произвольной информацией.\n Пример формата: `{\"property1\": \"string\"}`"
                     },
-                    "receiverData": {
-                        "$ref": "#/components/schemas/ReceiverDataDTO"
-                    },
                     "captureMode": {
                         "type": "string",
                         "description": "Признак двухстадийного сценария: \n- `AUTO` — подтверждение платежа производится автоматически;  \n- `MANUAL` — требуется подтверждение платежа последующим запросом.",
@@ -1283,6 +1312,69 @@
                         ]
                     }
                 }
+            },
+            "CredentialCaptured": {
+                "required": [
+                    "subType",
+                    "trn",
+                    "type"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/TokenizationCredentials"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "trn": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "CIT"
+                                ]
+                            },
+                            "subType": {
+                                "type": "string",
+                                "enum": [
+                                    "CREDENTIAL_CAPTURED"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            "CredentialOnFile": {
+                "required": [
+                    "subType",
+                    "type"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/TokenizationCredentials"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "CIT",
+                                    "MIT"
+                                ]
+                            },
+                            "subType": {
+                                "type": "string",
+                                "enum": [
+                                    "CREDENTIAL_ON_FILE"
+                                ]
+                            }
+                        }
+                    }
+                ]
             },
             "CustomerDTO": {
                 "type": "object",
@@ -1341,6 +1433,39 @@
                     }
                 }
             },
+            "Installment": {
+                "required": [
+                    "subType",
+                    "trn",
+                    "type"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/TokenizationCredentials"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "trn": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "MIT"
+                                ]
+                            },
+                            "subType": {
+                                "type": "string",
+                                "enum": [
+                                    "INSTALLMENT"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
             "MoneyDTO": {
                 "$ref": "#/components/schemas/PaymentAmount"
             },
@@ -1363,45 +1488,52 @@
                     "propertyName": "type"
                 }
             },
-            "ReceiverDataDTO": {
+            "Recurring": {
+                "required": [
+                    "subType",
+                    "trn",
+                    "type"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/TokenizationCredentials"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "trn": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "MIT"
+                                ]
+                            },
+                            "subType": {
+                                "type": "string",
+                                "enum": [
+                                    "RECURRING"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            "TokenizationCredentials": {
+                "required": [
+                    "subType"
+                ],
                 "type": "object",
                 "properties": {
-                    "pan": {
-                        "pattern": "^\\d{13,19}$",
-                        "type": "string",
-                        "description": "Номер карты получателя",
-                        "example": "22279992308606"
-                    },
-                    "wallet": {
-                        "maxLength": 64,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Номер кошелька получателя платежа"
-                    },
-                    "inn": {
-                        "pattern": "^(\\d{10}|\\d{12})$",
-                        "type": "string",
-                        "description": "ИНН организации-эмитента",
-                        "example": "775598987121"
-                    },
-                    "phone": {
-                        "pattern": "^\\+?\\d{11,16}$",
-                        "type": "string",
-                        "description": "Номер телефона получателя платежа",
-                        "example": "79123456789"
-                    },
-                    "bic": {
-                        "pattern": "^\\d{8,11}$",
-                        "type": "string",
-                        "description": "БИК кредитной организации получателя платежа",
-                        "example": "044525104"
-                    },
-                    "bankAccount": {
-                        "pattern": "^\\d{20}$",
-                        "type": "string",
-                        "description": "Номер счета получателя платежа",
-                        "example": "044525104"
+                    "subType": {
+                        "type": "string"
                     }
+                },
+                "description": "Параметры для обработки операций с сохраненными картами",
+                "discriminator": {
+                    "propertyName": "subType"
                 }
             },
             "WrappedRequestDTOCreatePaymentRequestDTO": {
@@ -1459,9 +1591,6 @@
                                 "description": "Auth-code платежа",
                                 "example": "347328"
                             },
-                            "createdToken": {
-                                "$ref": "#/components/schemas/CreatedTokenDTO"
-                            },
                             "type": {
                                 "type": "string",
                                 "enum": [
@@ -1500,40 +1629,6 @@
                         }
                     }
                 ]
-            },
-            "CreatedTokenDTO": {
-                "required": [
-                    "expirationDate",
-                    "token"
-                ],
-                "type": "object",
-                "properties": {
-                    "token": {
-                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
-                        "type": "string",
-                        "description": "Строка платежного токена"
-                    },
-                    "expirationDate": {
-                        "type": "string",
-                        "description": "Дата окончания срока действия платежного токена",
-                        "format": "date-time"
-                    },
-                    "name": {
-                        "maxLength": 64,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Маскированный номер карты, для которой выпущен токен",
-                        "example": "41111111******11"
-                    },
-                    "account": {
-                        "maxLength": 64,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Идентификатор Покупателя",
-                        "example": "token1631"
-                    }
-                },
-                "description": "Объект данных платежного токена"
             },
             "Declined": {
                 "required": [
@@ -1666,7 +1761,11 @@
                                 "$ref": "#/components/schemas/CustomerDTO"
                             },
                             "requirements": {
-                                "$ref": "#/components/schemas/RequirementsDTO"
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ThreeDSRequirements"
+                                    }
+                                ]
                             },
                             "callbackUrl": {
                                 "maxLength": 2083,
@@ -1705,9 +1804,6 @@
                                     "description": "Дополнительные поля с произвольной информацией.\n Пример формата: `{\"property1\": \"string\"}`"
                                 },
                                 "description": "Дополнительные поля с произвольной информацией.\n Пример формата: `{\"property1\": \"string\"}`"
-                            },
-                            "receiverData": {
-                                "$ref": "#/components/schemas/ReceiverDataDTO"
                             },
                             "captureMode": {
                                 "type": "string",
@@ -1755,15 +1851,21 @@
             },
             "RequirementsDTO": {
                 "required": [
-                    "threeDS"
+                    "type"
                 ],
                 "type": "object",
                 "properties": {
-                    "threeDS": {
-                        "$ref": "#/components/schemas/ThreeDSRequirementsDTO"
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "THREE_DS"
+                        ]
                     }
                 },
-                "description": "Требования для дополнительной аутентификации клиента"
+                "description": "Требования для дополнительной аутентификации клиента",
+                "discriminator": {
+                    "propertyName": "type"
+                }
             },
             "ResponseStatusDTO": {
                 "required": [
@@ -1789,30 +1891,39 @@
                 },
                 "description": "Статус операции"
             },
-            "ThreeDSRequirementsDTO": {
+            "ThreeDSRequirements": {
                 "required": [
                     "acsUrl",
-                    "paReq"
+                    "paReq",
+                    "type"
                 ],
                 "type": "object",
-                "properties": {
-                    "paReq": {
-                        "maxLength": 16384,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Сообщение для передачи в ACS банка-эмитента через браузер клиента",
-                        "example": "BC58+5698AE46DE4=="
+                "description": "Данные для аутентификации банковских карт по протоколам 3DS и 3DS 2.0",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/RequirementsDTO"
                     },
-                    "acsUrl": {
-                        "maxLength": 2083,
-                        "minLength": 1,
-                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
-                        "type": "string",
-                        "description": "URL ACS сервера банка-эмитента для перенаправления клиента",
-                        "example": "https://example.tochkapayment.ru/acs/"
+                    {
+                        "type": "object",
+                        "properties": {
+                            "paReq": {
+                                "maxLength": 16384,
+                                "minLength": 1,
+                                "type": "string",
+                                "description": "Сообщение для передачи в ACS банка-эмитента через браузер клиента",
+                                "example": "BC58+5698AE46DE4=="
+                            },
+                            "acsUrl": {
+                                "maxLength": 2083,
+                                "minLength": 1,
+                                "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                                "type": "string",
+                                "description": "URL ACS сервера банка-эмитента для перенаправления клиента",
+                                "example": "https://example.tochkapayment.ru/acs/"
+                            }
+                        }
                     }
-                },
-                "description": "Данные для аутентификации банковских карт по протоколам 3DS и 3DS 2.0"
+                ]
             },
             "Waiting": {
                 "required": [
@@ -2147,30 +2258,45 @@
             },
             "CompleteRequestDTO": {
                 "required": [
-                    "threeDS"
+                    "type"
                 ],
                 "type": "object",
                 "properties": {
-                    "threeDS": {
-                        "$ref": "#/components/schemas/ThreeDSCompleteRequestDTO"
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "THREE_DS"
+                        ]
                     }
+                },
+                "discriminator": {
+                    "propertyName": "type"
                 }
             },
             "ThreeDSCompleteRequestDTO": {
                 "required": [
-                    "paRes"
+                    "paRes",
+                    "type"
                 ],
                 "type": "object",
-                "properties": {
-                    "paRes": {
-                        "maxLength": 16384,
-                        "minLength": 1,
-                        "type": "string",
-                        "description": "Результат аутентификации покупателя, полученный после возврата с ACS банка-эмитента",
-                        "example": "eJxVjDsOwjAQBe+S0SWKiXHdwMhWmCbXIpZWa+O..."
+                "description": "Данные для аутентификации банковских карт по протоколам 3DS и 3DS 2.0",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/CompleteRequestDTO"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "paRes": {
+                                "maxLength": 16384,
+                                "minLength": 1,
+                                "type": "string",
+                                "description": "Результат аутентификации покупателя, полученный после возврата с ACS банка-эмитента",
+                                "example": "eJxVjDsOwjAQBe+S0SWKiXHdwMhWmCbXIpZWa+O..."
+                            }
+                        }
                     }
-                },
-                "description": "Данные для аутентификации банковских карт по протоколам 3DS и 3DS 2.0"
+                ]
             },
             "WrappedRequestDTOCompleteRequestDTO": {
                 "required": [
@@ -2179,7 +2305,11 @@
                 "type": "object",
                 "properties": {
                     "Data": {
-                        "$ref": "#/components/schemas/CompleteRequestDTO"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ThreeDSCompleteRequestDTO"
+                            }
+                        ]
                     }
                 }
             },
@@ -2486,7 +2616,28 @@
                     "type": "string"
                 },
                 "example": "8H7GSEE7018GC67"
+            },
+            "signature": {
+                "name": "Signature",
+                "in": "header",
+                "description": "Цифровая подпись тела запроса",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "example": "Wc6UyGaSVfx7qPxHH...cqhVxPaauEe8FsUQQ+/9de+Kvl1Y9Q=="
             }
         }
-    }
+    },
+    "x-tagGroups": [
+        {
+            "name": "Методы",
+            "tags": [
+                "Платеж через форму мерчанта",
+                "Завершение аутентификации",
+                "Подтверждение",
+                "Возвраты"
+            ]
+        }
+    ]
 }
