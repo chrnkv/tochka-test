@@ -1208,16 +1208,13 @@
                             "tokenizationCredentials": {
                                 "oneOf": [
                                     {
+                                        "$ref": "#/components/schemas/CitCredentialOnFile"
+                                    },
+                                    {
                                         "$ref": "#/components/schemas/CredentialCaptured"
                                     },
                                     {
-                                        "$ref": "#/components/schemas/CredentialOnFile"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/Installment"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/Recurring"
+                                        "$ref": "#/components/schemas/MitCredentialOnFile"
                                     }
                                 ]
                             },
@@ -1226,6 +1223,35 @@
                                 "enum": [
                                     "CARD"
                                 ]
+                            }
+                        }
+                    }
+                ]
+            },
+            "CitCredentialOnFile": {
+                "required": [
+                    "type"
+                ],
+                "type": "object",
+                "description": "Инициированная покупателем (CIT) операция по сохраненным реквизитам карты",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/TokenizationCredentialsRequestDTO"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "description": "Тип операции",
+                                "enum": [
+                                    "CIT_CREDENTIAL_ON_FILE"
+                                ]
+                            },
+                            "trn": {
+                                "type": "string",
+                                "description": "Идентификатор оригинальной или предыдущей успешной транзакции в платежной системе",
+                                "example": "872635123"
                             }
                         }
                     }
@@ -1315,10 +1341,10 @@
             },
             "CredentialCaptured": {
                 "required": [
-                    "initiator",
-                    "operationType"
+                    "type"
                 ],
                 "type": "object",
+                "description": "Инициированная покупателем (CIT) операция c сохранением реквизитов для последующего использования",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/TokenizationCredentialsRequestDTO"
@@ -1326,54 +1352,11 @@
                     {
                         "type": "object",
                         "properties": {
-                            "initiator": {
+                            "type": {
                                 "type": "string",
-                                "description": "Инициатор операции",
-                                "enum": [
-                                    "CIT"
-                                ]
-                            },
-                            "operationType": {
-                                "type": "string",
+                                "description": "Тип операции",
                                 "enum": [
                                     "CREDENTIAL_CAPTURED"
-                                ]
-                            }
-                        }
-                    }
-                ]
-            },
-            "CredentialOnFile": {
-                "required": [
-                    "initiator",
-                    "operationType",
-                    "trn"
-                ],
-                "type": "object",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/TokenizationCredentialsRequestDTO"
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "trn": {
-                                "type": "string",
-                                "description": "Идентификатор оригинальной или предыдущей успешной транзакции в платежной системе",
-                                "example": "872635123"
-                            },
-                            "initiator": {
-                                "type": "string",
-                                "description": "Инициатор операции",
-                                "enum": [
-                                    "CIT",
-                                    "MIT"
-                                ]
-                            },
-                            "operationType": {
-                                "type": "string",
-                                "enum": [
-                                    "CREDENTIAL_ON_FILE"
                                 ]
                             }
                         }
@@ -1437,13 +1420,13 @@
                     }
                 }
             },
-            "Installment": {
+            "MitCredentialOnFile": {
                 "required": [
-                    "initiator",
-                    "operationType",
-                    "trn"
+                    "subtype",
+                    "type"
                 ],
                 "type": "object",
+                "description": "Инициированная ТСП (MIT) операция по сохраненным реквизитам карты",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/TokenizationCredentialsRequestDTO"
@@ -1451,22 +1434,24 @@
                     {
                         "type": "object",
                         "properties": {
+                            "type": {
+                                "type": "string",
+                                "description": "Тип операции",
+                                "enum": [
+                                    "MIT_CREDENTIAL_ON_FILE"
+                                ]
+                            },
                             "trn": {
                                 "type": "string",
                                 "description": "Идентификатор оригинальной или предыдущей успешной транзакции в платежной системе",
                                 "example": "872635123"
                             },
-                            "initiator": {
+                            "subtype": {
                                 "type": "string",
-                                "description": "Инициатор операции",
+                                "description": "Тип платежа в рамках использования сохраненных реквизитов",
                                 "enum": [
-                                    "MIT"
-                                ]
-                            },
-                            "operationType": {
-                                "type": "string",
-                                "enum": [
-                                    "INSTALLMENT"
+                                    "INSTALLMENT",
+                                    "RECURRING"
                                 ]
                             }
                         }
@@ -1495,56 +1480,19 @@
                     "propertyName": "type"
                 }
             },
-            "Recurring": {
-                "required": [
-                    "initiator",
-                    "operationType",
-                    "trn"
-                ],
-                "type": "object",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/TokenizationCredentialsRequestDTO"
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "trn": {
-                                "type": "string",
-                                "description": "Идентификатор оригинальной или предыдущей успешной транзакции в платежной системе",
-                                "example": "872635123"
-                            },
-                            "initiator": {
-                                "type": "string",
-                                "description": "Инициатор операции",
-                                "enum": [
-                                    "MIT"
-                                ]
-                            },
-                            "operationType": {
-                                "type": "string",
-                                "enum": [
-                                    "RECURRING"
-                                ]
-                            }
-                        }
-                    }
-                ]
-            },
             "TokenizationCredentialsRequestDTO": {
                 "required": [
-                    "operationType"
+                    "type"
                 ],
                 "type": "object",
                 "properties": {
-                    "operationType": {
+                    "type": {
                         "type": "string",
                         "description": "Тип операции"
                     }
                 },
-                "description": "Параметры для обработки операций с сохраненными картами",
                 "discriminator": {
-                    "propertyName": "operationType"
+                    "propertyName": "type"
                 }
             },
             "WrappedRequestDTOCreatePaymentRequestDTO": {
@@ -1940,24 +1888,11 @@
                 ]
             },
             "TokenizationCredentialsResult": {
-                "required": [
-                    "operationType"
-                ],
                 "type": "object",
                 "properties": {
-                    "operationType": {
-                        "type": "string",
-                        "description": "Тип операции",
-                        "enum": [
-                            "CREDENTIAL_CAPTURED",
-                            "CREDENTIAL_ON_FILE",
-                            "INSTALLMENT",
-                            "RECURRING"
-                        ]
-                    },
                     "trn": {
                         "type": "string",
-                        "description": "Идентификатор оригинальной или предыдущей успешной транзакции в платежной системе",
+                        "description": "Идентификатор оригинальной или предыдущей успешной транзакции в платежной системе. \n Возвращается при инициировании покупателем оплаты c сохранением реквизитов (CREDENTIAL_CAPTURED)",
                         "example": "872635123"
                     }
                 },
