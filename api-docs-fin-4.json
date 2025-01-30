@@ -1233,7 +1233,6 @@
                     "type"
                 ],
                 "type": "object",
-                "description": "Инициированная покупателем (CIT) операция по сохраненным реквизитам карты",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/TokenizationCredentialsRequestDTO"
@@ -1243,7 +1242,7 @@
                         "properties": {
                             "type": {
                                 "type": "string",
-                                "description": "Тип операции",
+                                "description": "Тип операции: Инициированная покупателем (CIT) операция по сохраненным реквизитам карты",
                                 "enum": [
                                     "CIT_CREDENTIAL_ON_FILE"
                                 ]
@@ -1344,7 +1343,6 @@
                     "type"
                 ],
                 "type": "object",
-                "description": "Инициированная покупателем (CIT) операция c сохранением реквизитов для последующего использования",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/TokenizationCredentialsRequestDTO"
@@ -1354,7 +1352,7 @@
                         "properties": {
                             "type": {
                                 "type": "string",
-                                "description": "Тип операции",
+                                "description": "Тип операции: Инициированная покупателем (CIT) операция c сохранением реквизитов для последующего использования",
                                 "enum": [
                                     "CREDENTIAL_CAPTURED"
                                 ]
@@ -1426,7 +1424,6 @@
                     "type"
                 ],
                 "type": "object",
-                "description": "Инициированная ТСП (MIT) операция по сохраненным реквизитам карты",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/TokenizationCredentialsRequestDTO"
@@ -1436,7 +1433,7 @@
                         "properties": {
                             "type": {
                                 "type": "string",
-                                "description": "Тип операции",
+                                "description": "Тип операции: инициированная ТСП (MIT) операция по сохраненным реквизитам карты",
                                 "enum": [
                                     "MIT_CREDENTIAL_ON_FILE"
                                 ]
@@ -1448,7 +1445,7 @@
                             },
                             "subtype": {
                                 "type": "string",
-                                "description": "Тип платежа в рамках использования сохраненных реквизитов",
+                                "description": "Тип оплаты в рамках использования сохраненных реквизитов",
                                 "enum": [
                                     "INSTALLMENT",
                                     "RECURRING"
