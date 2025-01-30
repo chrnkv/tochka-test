@@ -1484,8 +1484,7 @@
                 "type": "object",
                 "properties": {
                     "type": {
-                        "type": "string",
-                        "description": "Тип операции"
+                        "type": "string"
                     }
                 },
                 "discriminator": {
