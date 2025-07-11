@@ -3160,6 +3160,7 @@
                             },
                             "type": {
                                 "type": "string",
+                                "description": "Тип платежного метода",
                                 "enum": [
                                     "CARD"
                                 ]
@@ -3379,8 +3380,7 @@
                 "type": "object",
                 "properties": {
                     "type": {
-                        "type": "string",
-                        "description": "Тип платежного метода"
+                        "type": "string"
                     }
                 },
                 "description": "Метод платежа",
