@@ -34,7 +34,7 @@
         },
         {
             "name": "[WIP] Функциональные ссылки СБП",
-            "description": "Методы для работы с Функциональными ссылками СБП"
+            "description": "Методы для работы с Функциональными ссылками СБП \n <div style=\"\n              background-color: #fff8e1;border-left: 4px solid #ffc107;\npadding: 12px;margin-bottom: 20px;font-size: 14px;color: #856404;            \">\n            <strong>API функциональных ссылок СБП находится в разработке</strong>\n        </div>"
         }
     ],
     "paths": {
