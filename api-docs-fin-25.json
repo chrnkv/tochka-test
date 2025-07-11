@@ -3380,7 +3380,7 @@
                 "properties": {
                     "type": {
                         "type": "string",
-                        "description": "Тип платежного метода \n <div style=\"\n              background-color: #fff8e1;border-left: 4px solid #ffc107;\npadding: 10px;margin-bottom: 20px;font-size: 12px;color: #856404;            \">\n            <strong>Метод оплаты находится в разработке</strong>\n        </div>"
+                        "description": "Тип платежного метода"
                     }
                 },
                 "description": "Метод платежа",
@@ -3408,6 +3408,7 @@
                             },
                             "type": {
                                 "type": "string",
+                                "description": "Тип платежного метода \n <div style=\"\n              background-color: #fff8e1;border-left: 4px solid #ffc107;\npadding: 10px;margin-bottom: 20px;font-size: 12px;color: #856404;            \">\n            <strong>Метод оплаты находится в разработке</strong>\n        </div>",
                                 "enum": [
                                     "SBP_TOKEN"
                                 ]
