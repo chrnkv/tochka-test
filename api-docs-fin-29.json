@@ -2,7 +2,7 @@
     "openapi": "3.0.1",
     "info": {
         "title": "API Приема платежей",
-        "description": "# Электронная подпись запросов\n\nВ целях безопасности проведения финансовых операций через открытое API, необходимо формировать и передавать цифровую подпись запросов в заголовке `Signature` для следующих типов запросов:\n\n* [Платеж через форму мерчанта -> Создание платежа](/doc/v2/redoc/tag/Platezh-cherez-formu-merchanta?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#createPayment);\n* [Подтверждение -> Подтверждение платежа](/doc/v2/redoc/tag/Podtverzhdenie?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#createCapture);\n* [Возвраты -> Создание операции возврата](/doc/v2/redoc/tag/Vozvraty?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#createRefund).\n\nДля реализации проверки подписаных таким образом запросов мерчант должен передать нам открытый ключ на этапе подключения. Детали создания и передачи ключа см. в подразделе - [Формирование ключей](/doc/v2/redoc/section/Elektronnaya-podpis-zaprosov?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#Formirovanie-klyuchej). Детали создания и передачи подписи запроса см. в подразделе - [Подпись запроса](/doc/v2/redoc/section/Elektronnaya-podpis-zaprosov?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#Podpis-zaprosa).\n\n## Формирование ключей\n**Требования к ключам:**\n\n* Алгоритм — RSA;\n* Размер ключа — 2048-bit;\n* Форма передаваемого ключа — PEM формат, закодированный в Base64 одной строкой (без переносов).\n\n**Пример на Bash:**\n1. Сгенерировать закрытый ключ\n```bash\nopenssl genrsa -out private_key.pem 2048\n```\n\n2. Получить открытый ключ на основе закрытого\n```bash\nopenssl rsa -in private_key.pem -pubout -out public_key.pem\n```\n\n3. Закодировать открытый ключ в Base64\n```bash\nopenssl base64 -A -in public_key.pem -out public_key_base64.pem\n```\n\n4. В рамках подключения к API Точки передать полученный на предыдущем шаге `public_key_base64.pem`\n\n## Подпись запроса\n**Требования к подписи:**\n\n* Hash-функция — sha256;\n* Заголовок для передачи подписи - `Signature`;\n* Форма передачи подписи — \"сырая\" подпись, закодированная в Base64 одной строкой (без переносов).\n\n**Пример на Bash:**\n\n1. Подготовить тело запроса (в данном случае - предположим что оно в файле request.txt);\n```\nhello, world\n```\n2. Подписать тело запроса с помощью приватного ключа и с hash-функцией sha256;\n```bash\nopenssl dgst -sha256 -sign private_key.pem request.txt > sign_raw.txt\n```\n3. Закодировать \"сырую\" подпись в Base64;\n```bash\nopenssl base64 -A -in sign_raw.txt -out sign_base64.txt\n```\n4. Передавать содержимое `sign_base64.txt` в заголовке `Signature` запросов.\n\n\n# Аутентификация запросов\nДля аутентификации запросов используется JWT токен, который необходимо передать в заголовке `Authorization: Bearer <JWT_TOKEN>`.\n\nТокен вы сможете получить в процессе бординга или у менеджера сопровождения.\n\n\n# Тестирование\nДля проведения тестирования методов API используйте выданный вам в процессе бординга идентификатор сайта — `siteUid`. Тестируйте на картах из списка ниже, иначе операция будет отклонена.\n\n**Пул тестовых карт:**\n\n* VISA:\n  * 4282529780951108\n  * 4433079223745277\n  * 4433096334531891\n  * 4648276478204536\n  * 4433094693138127\n\n* MC:\n  * 5324619129671504\n  * 5186479678835191\n  * 5203415510291044\n  * 5586966955309532\n  * 5586966837580789\n\n* MIR:\n  * 2200111753579001\n  * 2200117996077364\n  * 2200119066335755\n  * 2200113704697015\n  * 2200119753612540\n\n## Конфигурация тестовых сценариев\n\nДля тестирования сценариев и имитации отклонённых операций используйте в запросе поле `comment`. Поле должно содержать строку с JSON-структурой флагов и их значений.\n\n**Пример заполнения поля:**\n\n```\n...\n\"Data\": {\n    ...\n    \"comment\": \"{\\\"decline_payment\\\":false, \\\"3ds_flow\\\": \\\"3ds1\\\"}\",\n    ...\n}\n...\n```\n\n_Описание флагов для принудительного отклонения операций:_\n\n* `\"decline_payment\"`: (Boolean) — при значении `true` платеж будет отклонен системой;\n* `\"decline_capture\"`: (Boolean) — при значении `true` подтверждение будет отклонено системой;\n* `\"decline_refund\"`: (Boolean) — при значении `true` возврат будет отклонен системой.\n\n_Описание флагов для тестирования сценариев 3DSecure (3DS):_\n\nДля тестирования сценария с 3DS либо проведите обычный платёж без данных сохранённой карты (без tokenizationCredentials), либо сформируйте запрос на привязку карты (tokenizationCredentials - CREDENTIAL_CAPTURED). Все платежи с привязанной карты (CIT_CREDENTIAL_ON_FILE/MIT_CREDENTIAL_ON_FILE) проходят без 3DS по умолчанию.\n\n* `\"3ds_flow\"`: (String) — задает версию 3DS. В зависимости от значения этого флага будет меняться версия пройденного 3DS в ответе на запрос завершения аутентификации. Процесс взаимодействия с апи не меняется.\nВозможные значения:\n  * `\"none\"` — значение по умолчанию\n  * `\"3ds1\"`\n  * `\"3ds2\"`\n\n\n**При отсутствии флага `3ds_flow` или значении `none` платеж будет переведен в статус `COMPLETED`.**\n\n**Для успешного завершения сценариев 3DS отправьте на complete следующий PaRes:**\n\n```\neJxVjkELgkAQhf+K7N127ZQ1rkTaJaRIO8uiky7kGjsa/fxWiUJ4h8e8j4+B+N09vBda0r2JWLASzENT9bU2TcR2t+Lob1gsoWgtYpJjNVqUkCGRatDTdcSo77DUNZpB3zVaJuGyvyL9t6eySAsiOx9OaVI6Ls2Bz7gE/pVOdlu1ygzcqcapkjsmakC5FmHoi8ClEGI7JQA+L07zQ/ni2Q9oEUph\n```\n\n\n# Справочники\n\n## Причины отклонения операции\n\nОбщий вид статуса отклонённой операции:\n\n```\n\"status\": {\n  \"value\": \"DECLINED\",\n  \"changedDateTime\": \"2099-01-01T12:34:56Z\",\n\n  \"reasonSource\": <Источник причины отклонения операции>,\n  \"reasonCode\": <Коды причины отклонения операции>,\n  \"reasonMessage\": \"Какое-либо пояснение причины отклонения\",\n\n  ...\n}\n```\n\n**Источники причины отклонения в проведении операции:**\n\n* **PROCESSING** - платежный процессинг;\n* **ACQUIRER** - шлюз - эквайрер;\n* **PAY_SYSTEM** - платежная система;\n* **ISSUER** - эмитент, выпустивший карту;\n* **MPI** - в процессе проведения 3DS;\n* **FRAUD** - служба фрод-мониторинга.\n\n**Коды причины отклонения операции:**\n\n* **INTERNAL_ERROR** - ошибка в бизнес-логике;\n* **TECH_ERROR** - общая техническая ошибка;\n* **LIMIT_EXCEEDED** - достигнут один из лимитов (оборот, кол-во операции и так далее);\n* **OPERATION_NOT_SUPPORTED** - операция не поддерживается на стороне источника;\n* **PAYMENT_NOT_FOUND** - не найдена исходная операция списания средств;\n* **INVALID_CARD** - в запросе передана некорректная карта;\n* **EXPIRED_CARD** - срок действия карты завершен;\n* **NOT_PERMITTED** - проведение операции запрещено;\n* **INTEGRATION_ERROR** - ошибка в интеграции с внешним эквайрером;\n* **VALIDATION_ERROR** - запрос не прошел проверку;\n* **INCORRECT_TRANSACTION_STATE** - попытка перевести операцию в некорректное состояние;\n* **INCORRECT_AMOUNT** - в запросе передана некорректная сумма;\n* **TOO_MANY_REQUESTS** - сработало ораничение на число запросов к процессингу;\n* **ISSUER_NOT_AVAILABLE** - эмитент не доступен по техническим причинам;\n* **REATTEMPT_NOT_PERMITTED** - повторение операции запрещено правилами платежной системы;\n* **INSUFFICIENT_FUNDS** - недостаточно средств на счете клиента;\n* **BLOCKED_CARD** - карта заблокирована;\n* **INCORRECT_CVV** - передан некорректный cvv код;\n* **EXPIRED_3DS** - 3DS не был завершен вовремя;\n* **SUSPECTED_FRAUD** - операция отклонена из-за подозрения в мошенничестве.\n\n## Статусы и коды ошибок\n\nОбщий вид ответа:\n\n```\n{\n  \"code\": <HTTP_STATUS>,\n  \"id\":\"4a0f8085-c255-4693-8f1e-68a5e4b0adb7\",\n  \"message\": <Категория ошибки>,\n  \"Errors\":[\n    {\n        \"errorCode\": <Подкатегория ошибки>,\n        \"message\":\"Более детальное пояснение проблемы\",\n        \"url\":\"https://enter.tochka.com/uapi/pay\"\n    }\n  ]\n}\n```\n\nБывает, что формат ответа отличается от представленного выше. В таком случае нужно повторить операцию. Если при повторной операции проблема сохранится, обратитесь в поддержку Точки.\n\nОписание возможных вариантов параметров ответа:\n\n**400** _(HTTP_STATUS)_\n* REQUEST_PARSING_ERROR _(Категория)_\n* REQUEST_VALIDATION_ERROR _(Категория)_\n\n**401** _(HTTP_STATUS)_\n* INVALID_TOKEN _(Категория)_\n  * UNKNOWN_TOKEN _(Подкатегория)_\n  * TOKEN_EXPIRED _(Подкатегория)_\n  * INCORRECT_FORMAT _(Подкатегория)_\n\n**403** _(HTTP_STATUS)_\n* OPERATION_FORBIDDEN _(Категория)_\n  * SIGNATURE_VERIFICATION_ERROR _(Подкатегория)_\n  * UNAUTHORIZED_BY_TOKEN _(Подкатегория)_\n  * FEATURE_DISABLED_FOR_MERCHANT_SITE _(Подкатегория)_\n\n**404** _(HTTP_STATUS)_\n* ENTITY_NOT_FOUND _(Категория)_\n  * MERCHANT_NOT_FOUND _(Подкатегория)_\n  * MERCHANT_SITE_NOT_FOUND _(Подкатегория)_\n  * PAYMENT_NOT_FOUND _(Подкатегория)_\n\n**423** _(HTTP_STATUS)_\n* OPERATION_LOCKED _(Категория)_\n  * PAYMENT_LOCKED _(Подкатегория)_\n\n**429** _(HTTP_STATUS)_\n* OPERATION_RATE_LIMIT _(Категория)_\n\n**500** _(HTTP_STATUS)_\n* INTERNAL_ERROR _(Категория)_\n  * CARD_PROCESSING_ERROR _(Подкатегория)_\n\n**501** _(HTTP_STATUS)_\n* UNSUPPORTED_OPERATION _(Категория)_\n  * NOT_SUPPORTED_BY_PROCESSING _(Подкатегория)_\n  * UNSUPPORTED_PAYMENT_METHOD _(Подкатегория)_\n\n**503** _(HTTP_STATUS)_\n* UNDERLYING_SERVICE_UNAVAILABLE _(Категория)_\n  * CONNECTION_BROKEN _(Подкатегория)_\n  * CONNECTION_TIMEOUT _(Подкатегория)_\n\n\n# Аутентификации покупателя (3DSecure)\n\nКлиенту необходимо пройти шаг аутентификации 3DSecure (3DS), если при выполнении операции [\"Создание платежа\"](/doc/v2/redoc/tag/Platezh-cherez-formu-merchanta?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#createPayment)\nв ответе вернулся объект `requirements` с полями:\n\n* `type` - `THREE_DS`;\n* `paReq` - зашифрованный запрос для аутентификации 3DS;\n* `acsUrl` - URL сервера аутентификации 3DS для перененаправления покупателя на страницу банка-эмитента.\n\n_По умолчанию с аутентификацией 3DS проходят:_\n* все разовые платежи (без объекта tokenizationCredentials)\n* все платежи, в рамках котороых идет привязка карты (tokenizationCredentials - CREDENTIAL_CAPTURED)\n\n_По умолчанию без аутентификации 3DS проходят:_\n* все платежи с привязанной карты\n  * CIT_CREDENTIAL_ON_FILE\n  * MIT_CREDENTIAL_ON_FILE (INSTALLMENT/RECURRING)\n\n## Инициирование аутентификации пользователя\nДля перенаправления пользователя на страницу проверки, используется POST запрос по адресу из поля `acsUrl`.\n**Передаваемые параметры:**\n* `TermUrl` - URL для перенаправления покупателя после успешной аутентификации 3DS;\n* `MD` - уникальный идентификатор транзакции;\n* `PaReq` - значение поля paReq из ответа на запрос \"Создание платежа\".\n\nПроцесс перенаправления унифицирован для 3DS 1.0 и 3DS 2.0. Версия протокола не влияет на интеграцию с API.\n\n## Завершение процесса аутентификации\n\nПо завершении процесса проверки клиент перенаправляется на адрес `TermUrl`, где в параметре `PaRes` передаётся зашифрованный результат аутентификации.\n\nДля завершения процесса 3DS аутентификации необходимо выполнить вызов метода API [\"Завершение аутентификации\"](/doc/v2/redoc/tag/Zavershenie-autentifikacii?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json)\n\n\n\n# Серверные уведомления\n\n",
+        "description": "# Электронная подпись запросов\n\nВ целях безопасности проведения финансовых операций через открытое API, необходимо формировать и передавать цифровую подпись запросов в заголовке `Signature` для следующих типов запросов:\n\n* [Платеж через форму мерчанта -> Создание платежа](/doc/v2/redoc/tag/Platezh-cherez-formu-merchanta?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#createPayment);\n* [Подтверждение -> Подтверждение платежа](/doc/v2/redoc/tag/Podtverzhdenie?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#createCapture);\n* [Возвраты -> Создание операции возврата](/doc/v2/redoc/tag/Vozvraty?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#createRefund).\n\nДля реализации проверки подписаных таким образом запросов мерчант должен передать нам открытый ключ на этапе подключения. Детали создания и передачи ключа см. в подразделе - [Формирование ключей](/doc/v2/redoc/section/Elektronnaya-podpis-zaprosov?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#Formirovanie-klyuchej). Детали создания и передачи подписи запроса см. в подразделе - [Подпись запроса](/doc/v2/redoc/section/Elektronnaya-podpis-zaprosov?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#Podpis-zaprosa).\n\n## Формирование ключей\n**Требования к ключам:**\n\n* Алгоритм — RSA;\n* Размер ключа — 2048-bit;\n* Форма передаваемого ключа — PEM формат, закодированный в Base64 одной строкой (без переносов).\n\n**Пример на Bash:**\n1. Сгенерировать закрытый ключ\n```bash\nopenssl genrsa -out private_key.pem 2048\n```\n\n2. Получить открытый ключ на основе закрытого\n```bash\nopenssl rsa -in private_key.pem -pubout -out public_key.pem\n```\n\n3. Закодировать открытый ключ в Base64\n```bash\nopenssl base64 -A -in public_key.pem -out public_key_base64.pem\n```\n\n4. В рамках подключения к API Точки передать полученный на предыдущем шаге `public_key_base64.pem`\n\n## Подпись запроса\n**Требования к подписи:**\n\n* Hash-функция — sha256;\n* Заголовок для передачи подписи - `Signature`;\n* Форма передачи подписи — \"сырая\" подпись, закодированная в Base64 одной строкой (без переносов).\n\n**Пример на Bash:**\n\n1. Подготовить тело запроса (в данном случае - предположим что оно в файле request.txt);\n```\nhello, world\n```\n2. Подписать тело запроса с помощью приватного ключа и с hash-функцией sha256;\n```bash\nopenssl dgst -sha256 -sign private_key.pem request.txt > sign_raw.txt\n```\n3. Закодировать \"сырую\" подпись в Base64;\n```bash\nopenssl base64 -A -in sign_raw.txt -out sign_base64.txt\n```\n4. Передавать содержимое `sign_base64.txt` в заголовке `Signature` запросов.\n\n\n# Аутентификация запросов\nДля аутентификации запросов используется JWT токен, который необходимо передать в заголовке `Authorization: Bearer <JWT_TOKEN>`.\n\nТокен вы сможете получить в процессе бординга или у менеджера сопровождения.\n\n\n# Тестирование\nДля проведения тестирования методов API используйте выданный вам в процессе бординга идентификатор сайта — `siteUid`. Тестируйте на картах из списка ниже, иначе операция будет отклонена.\n\n**Пул тестовых карт:**\n\n* VISA:\n  * 4282529780951108\n  * 4433079223745277\n  * 4433096334531891\n  * 4648276478204536\n  * 4433094693138127\n\n* MC:\n  * 5324619129671504\n  * 5186479678835191\n  * 5203415510291044\n  * 5586966955309532\n  * 5586966837580789\n\n* MIR:\n  * 2200111753579001\n  * 2200117996077364\n  * 2200119066335755\n  * 2200113704697015\n  * 2200119753612540\n\n## Конфигурация тестовых сценариев\n\nДля тестирования сценариев и имитации отклонённых операций используйте в запросе поле `comment`. Поле должно содержать строку с JSON-структурой флагов и их значений.\n\n**Пример заполнения поля:**\n\n```\n...\n\"Data\": {\n    ...\n    \"comment\": \"{\\\"decline_payment\\\":false, \\\"3ds_flow\\\": \\\"3ds1\\\"}\",\n    ...\n}\n...\n```\n\n_Описание флагов для принудительного отклонения операций:_\n\n* `\"decline_payment\"`: (Boolean) — при значении `true` платеж будет отклонен системой;\n* `\"decline_capture\"`: (Boolean) — при значении `true` подтверждение будет отклонено системой;\n* `\"decline_refund\"`: (Boolean) — при значении `true` возврат будет отклонен системой.\n\n_Описание флагов для тестирования сценариев 3DSecure (3DS):_\n\nДля тестирования сценария с 3DS либо проведите обычный платёж без данных сохранённой карты (без tokenizationCredentials), либо сформируйте запрос на привязку карты (tokenizationCredentials - CREDENTIAL_CAPTURED). Все платежи с привязанной карты (CIT_CREDENTIAL_ON_FILE/MIT_CREDENTIAL_ON_FILE) проходят без 3DS по умолчанию.\n\n* `\"3ds_flow\"`: (String) — задает версию 3DS. В зависимости от значения этого флага будет меняться версия пройденного 3DS в ответе на запрос завершения аутентификации. Процесс взаимодействия с апи не меняется.\nВозможные значения:\n  * `\"none\"` — значение по умолчанию\n  * `\"3ds1\"`\n  * `\"3ds2\"`\n\n\n**При отсутствии флага `3ds_flow` или значении `none` платеж будет переведен в статус `COMPLETED`.**\n\n**Для успешного завершения сценариев 3DS отправьте на complete следующий PaRes:**\n\n```\neJxVjkELgkAQhf+K7N127ZQ1rkTaJaRIO8uiky7kGjsa/fxWiUJ4h8e8j4+B+N09vBda0r2JWLASzENT9bU2TcR2t+Lob1gsoWgtYpJjNVqUkCGRatDTdcSo77DUNZpB3zVaJuGyvyL9t6eySAsiOx9OaVI6Ls2Bz7gE/pVOdlu1ygzcqcapkjsmakC5FmHoi8ClEGI7JQA+L07zQ/ni2Q9oEUph\n```\n\n\n# Тестирование СБП\n\nДля целей разработки и тестирования реализована возможность воспроизвести поддерживаемые ответы при работе с методами раздела \"Функциональные ссылки СБП\".\n\nДля проведения тестирования необходимо:\n\n- Использовать siteUid, выданный при онбординге;\n- Задать тестовый сценарий в запросе на создание функциональной ссылки СБП.\n\n## Конфигурация тестовых сценариев\n\nСценарий передаётся в одном из полей метода на [создание функциональной ссылки СБП](https://enter.tochka.com/doc/v2/redoc/tag/WIP-Funkcionalnye-ssylki-SBP?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#createQRCode) в зависимости от типа QR-кода:\n\n- `paymentPurpose` — для создания статичных и динамических QR-кодов (`QRCodeDynamic`, `QRCodeStatic`) и сценария \"Оплата с привязкой счета\" (`QRCodeDynamic` + заполненное поле `paymentToken`);\n\n- `subscriptionPurpose` — для создания токена (`QRCodeToken`) и последующей работой с платежом.\n\nВ методе [Создание платежа](https://developers.tochka.com/docs/accepting-payments/api/create-payment) при оплате СБП-токеном (`SBPTokenPaymentMethod`):\n\n- `comment` - в запросе при оплате по СБП-токену, принимает поле сценария `payWithToken`\n\nПоле должно содержать JSON-строку (экранированный JSON), определяющую сценарии обработки.\nЕсли поле не заполнено или содержит некорректный JSON — используется сценарий по умолчанию.\n\nПример передачи сценария:\n```\n....\n\"qrcType\": \"DYNAMIC\",\n\"paymentPurpose\": \"{\\\"createQrc\\\":\\\"OK_PAYMENT_ACCEPTED\\\",\\\"refund\\\":\\\"OK_ACCEPTED\\\"}\"\n....\n```\n\n## Поля сценария\n\n### 1. `createQrc` — определяет сценарий поведения при создании QR-кода и дальнейшей обработки платежа и выпуска токена.\n\n| Значение | Описание                                                                                                                                                             |\n|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| `OK_WITHOUT_CALLBACKS` | Значение по умолчанию. QR-код успешно создан, уведомления не отправляются. Используется, если требуется протестировать только генерацию QR-кода без имитации оплаты. |\n| `OK_PAYMENT_ACCEPTED` | QR-код успешно создан, далее имитируется успешный платёж: отправляется уведомление об успешной обработке платежа.                                                    |\n| `OK_PAYMENT_REJECTED` | QR-код успешно создан, далее имитируется отклонение платежа: отправляется уведомление об отказе.                                                                     |\n| `OK_SUBSCRIPTION_ACCEPTED` | QR-код успешно создан, далее имитируется успешная активация токена и отправка уведомления о его статусе. (Используется для `QRCodeToken` для выпуска токена)         |\n| `OK_PAYMENT_AND_SUBSCRIPTION_ACCEPTED` | QR-код успешно создан, далее имитируется успешный платёж и успешная активация токена (Используется для сценария \"Оплата с привязкой счета\").                         |\n| `OK_SUBSCRIPTION_REJECTED` | QR-код успешно создан, далее имитируется отказ в активации токена.                                                                                                   |\n| `ERROR` | Ошибка при создании QR-кода (например, неверные параметры запроса или сбой на стороне СБП).                                                                          |\n\n---\n\n### 2. `payWithToken` — Определяет дальнейший сценарий поведения при оплате по токену.\n\n| Значение | Описание                                                                                                                             |\n|----------|--------------------------------------------------------------------------------------------------------------------------------------|\n| `OK` | Значение по умолчанию. Оплата по токену успешно выполнена. Возвращается успешный ответ, отправляется уведомление об успешном платеже.|\n| `OK_WITHOUT_CALLBACKS` | Оплата по токену успешно выполнена. Уведомления не отправляются.|\n| `OK_REJECTED` | Оплата по токену отклонена. Отправляется уведомление об отказе.|\n| `ERROR` | Ошибка при оплате по токену (например, сбой сервиса, некорректный запрос). Возвращается ошибка.|\n\n---\n\n### 3. `refund` — Определяет сценарий поведения при возврате платежа.\n\n| Значение | Описание                                                                          |\n|----------|-----------------------------------------------------------------------------------|\n| `OK_WITHOUT_CALLBACKS` | Значение по умолчанию. Возврат считается успешным, но уведомления не отправляются. |\n| `OK_ACCEPTED` | Возврат успешно выполнен, отправляется уведомление о подтверждении возврата.      |\n| `OK_REJECTED` | Возврат отклонён, отправляется уведомление о неуспехе операции.          |\n| `ERROR` | Ошибка при возврате                                                               |\n\n### Примеры сценариев\n\n- Успешное создание динамического QR-кода без последующей оплаты\n\n```\n....\n\"qrcType\": \"DYNAMIC\",\n\"paymentPurpose\": \"{\\\"createQrc\\\":\\\"OK_WITHOUT_CALLBACKS\\\"}\"\n....\n```\n\n- Успешное создание статического QR-кода с последующей имитацией успешной оплаты.\n\n```\n....\n\"qrcType\": \"STATIC\",\n\"paymentPurpose\": \"{\\\"createQrc\\\":\\\"OK_PAYMENT_ACCEPTED\\\"}\"\n....\n```\n\n- Успешное создание динамического QR-кода с последующей имитацией успешной оплаты и имитацией успешного возврата при отправке запроса [Создание операции возврата](https://enter.tochka.com/doc/v2/redoc/tag/Vozvraty#createRefund)\n\n```\n...\n\"qrcType\": \"DYNAMIC\",\n\"paymentPurpose\": \"{\\\"createQrc\\\":\\\"OK_PAYMENT_ACCEPTED\\\",\\\"refund\\\":\\\"OK_ACCEPTED\\\"}\"\n...\n```\n\n- Сценарий \"Оплата с привязкой счета\". Генерация динамического QR-кода с успешной оплатой и привязкой счета.\n\n```\n....\n\"qrcType\": \"DYNAMIC\",\n\"paymentToken\": {\n    \"tokenizationPurpose\": \"Тестирование сценария оплаты с привязкой счета\"\n},\n\"paymentPurpose\": \"{\\\"createQrc\\\":\\\"OK_PAYMENT_AND_SUBSCRIPTION_ACCEPTED\\\"}\",\n....\n```\n\n- Сценарий \"Привязка счета без оплаты\". Отказ от активации подписки.\n\n```\n....\n\"qrcType\": \"TOKEN\",\n\"paymentToken\": {\n    \"tokenizationPurpose\": \"{\\\"createQrc\\\":\\\"OK_SUBSCRIPTION_REJECTED\\\"}\"\n},\n....\n```\n\n- Сценарий \"Оплата по привязке\". Имитирует отказ оплаты по токену при отправке запроса [Создание платежа](https://enter.tochka.com/doc/v2/redoc/tag/Platezh-cherez-formu-merchanta) с методом оплаты \"SBP_TOKEN\".\n\n```\n....\n\"paymentMethod\": {\n    \"type\":\"SBP_TOKEN\",\n    \"token\": \"AS1000670LSS7DN18SJQDNP4B05KLJL2\",\n},\n\"comment\": \"{\\\"payWithToken\\\":\\\"OK_REJECTED\\\"}\"\n....\n```\n\n## Оплата по привязанному счету с токеном СБП\n\nДля оплаты по привязанному счету необходимо вызвать метод [Создание платежа](https://developers.tochka.com/docs/accepting-payments/api/create-payment).\nВ поле `paymentMethod` указывается `SBPTokenPaymentMethod` и токен, полученный в уведомлении привязки счета.\n\nПример запроса:\n\n```\n....\n\"paymentMethod\": {\n  \"type\": \"SBP_TOKEN\",\n  \"token\": \"VVyHYVcVyl5yBEtGzqAbvfUCm2E\"\n}\n....\n```\n\n## Операция возврата средств\n\nДля возврата средств по совершенному платежу через СБП используется метод [Создание операции возврата](https://developers.tochka.com/docs/accepting-payments/api/create-refund)\n\nЗначение параметра `paymentUid` должно совпадать со значением поля `paymentUid`, который ранее был доставлен в уведомлении о проведении платежа.\n\n\n# Справочники\n\n## Причины отклонения операции\n\nОбщий вид статуса отклонённой операции:\n\n```\n\"status\": {\n  \"value\": \"DECLINED\",\n  \"changedDateTime\": \"2099-01-01T12:34:56Z\",\n\n  \"reasonSource\": <Источник причины отклонения операции>,\n  \"reasonCode\": <Коды причины отклонения операции>,\n  \"reasonMessage\": \"Какое-либо пояснение причины отклонения\",\n\n  ...\n}\n```\n\n**Источники причины отклонения в проведении операции:**\n\n* **PROCESSING** - платежный процессинг;\n* **ACQUIRER** - шлюз - эквайрер;\n* **PAY_SYSTEM** - платежная система;\n* **ISSUER** - эмитент, выпустивший карту;\n* **MPI** - в процессе проведения 3DS;\n* **FRAUD** - служба фрод-мониторинга.\n\n**Коды причины отклонения операции:**\n\n* **INTERNAL_ERROR** - ошибка в бизнес-логике;\n* **TECH_ERROR** - общая техническая ошибка;\n* **LIMIT_EXCEEDED** - достигнут один из лимитов (оборот, кол-во операции и так далее);\n* **OPERATION_NOT_SUPPORTED** - операция не поддерживается на стороне источника;\n* **PAYMENT_NOT_FOUND** - не найдена исходная операция списания средств;\n* **INVALID_CARD** - в запросе передана некорректная карта;\n* **EXPIRED_CARD** - срок действия карты завершен;\n* **NOT_PERMITTED** - проведение операции запрещено;\n* **INTEGRATION_ERROR** - ошибка в интеграции с внешним эквайрером;\n* **VALIDATION_ERROR** - запрос не прошел проверку;\n* **INCORRECT_TRANSACTION_STATE** - попытка перевести операцию в некорректное состояние;\n* **INCORRECT_AMOUNT** - в запросе передана некорректная сумма;\n* **TOO_MANY_REQUESTS** - сработало ораничение на число запросов к процессингу;\n* **ISSUER_NOT_AVAILABLE** - эмитент не доступен по техническим причинам;\n* **REATTEMPT_NOT_PERMITTED** - повторение операции запрещено правилами платежной системы;\n* **INSUFFICIENT_FUNDS** - недостаточно средств на счете клиента;\n* **BLOCKED_CARD** - карта заблокирована;\n* **INCORRECT_CVV** - передан некорректный cvv код;\n* **EXPIRED_3DS** - 3DS не был завершен вовремя;\n* **SUSPECTED_FRAUD** - операция отклонена из-за подозрения в мошенничестве.\n\n## Статусы и коды ошибок\n\nОбщий вид ответа:\n\n```\n{\n  \"code\": <HTTP_STATUS>,\n  \"id\":\"4a0f8085-c255-4693-8f1e-68a5e4b0adb7\",\n  \"message\": <Категория ошибки>,\n  \"Errors\":[\n    {\n        \"errorCode\": <Подкатегория ошибки>,\n        \"message\":\"Более детальное пояснение проблемы\",\n        \"url\":\"https://enter.tochka.com/uapi/pay\"\n    }\n  ]\n}\n```\n\nБывает, что формат ответа отличается от представленного выше. В таком случае нужно повторить операцию. Если при повторной операции проблема сохранится, обратитесь в поддержку Точки.\n\nОписание возможных вариантов параметров ответа:\n\n**400** _(HTTP_STATUS)_\n* REQUEST_PARSING_ERROR _(Категория)_\n* REQUEST_VALIDATION_ERROR _(Категория)_\n\n**401** _(HTTP_STATUS)_\n* INVALID_TOKEN _(Категория)_\n  * UNKNOWN_TOKEN _(Подкатегория)_\n  * TOKEN_EXPIRED _(Подкатегория)_\n  * INCORRECT_FORMAT _(Подкатегория)_\n\n**403** _(HTTP_STATUS)_\n* OPERATION_FORBIDDEN _(Категория)_\n  * SIGNATURE_VERIFICATION_ERROR _(Подкатегория)_\n  * UNAUTHORIZED_BY_TOKEN _(Подкатегория)_\n  * FEATURE_DISABLED_FOR_MERCHANT_SITE _(Подкатегория)_\n\n**404** _(HTTP_STATUS)_\n* ENTITY_NOT_FOUND _(Категория)_\n  * MERCHANT_NOT_FOUND _(Подкатегория)_\n  * MERCHANT_SITE_NOT_FOUND _(Подкатегория)_\n  * PAYMENT_NOT_FOUND _(Подкатегория)_\n\n**423** _(HTTP_STATUS)_\n* OPERATION_LOCKED _(Категория)_\n  * PAYMENT_LOCKED _(Подкатегория)_\n\n**429** _(HTTP_STATUS)_\n* OPERATION_RATE_LIMIT _(Категория)_\n\n**500** _(HTTP_STATUS)_\n* INTERNAL_ERROR _(Категория)_\n  * CARD_PROCESSING_ERROR _(Подкатегория)_\n\n**501** _(HTTP_STATUS)_\n* UNSUPPORTED_OPERATION _(Категория)_\n  * NOT_SUPPORTED_BY_PROCESSING _(Подкатегория)_\n  * UNSUPPORTED_PAYMENT_METHOD _(Подкатегория)_\n\n**503** _(HTTP_STATUS)_\n* UNDERLYING_SERVICE_UNAVAILABLE _(Категория)_\n  * CONNECTION_BROKEN _(Подкатегория)_\n  * CONNECTION_TIMEOUT _(Подкатегория)_\n\n\n# Аутентификации покупателя (3DSecure)\n\nКлиенту необходимо пройти шаг аутентификации 3DSecure (3DS), если при выполнении операции [\"Создание платежа\"](/doc/v2/redoc/tag/Platezh-cherez-formu-merchanta?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#createPayment)\nв ответе вернулся объект `requirements` с полями:\n\n* `type` - `THREE_DS`;\n* `paReq` - зашифрованный запрос для аутентификации 3DS;\n* `acsUrl` - URL сервера аутентификации 3DS для перененаправления покупателя на страницу банка-эмитента.\n\n_По умолчанию с аутентификацией 3DS проходят:_\n* все разовые платежи (без объекта tokenizationCredentials)\n* все платежи, в рамках котороых идет привязка карты (tokenizationCredentials - CREDENTIAL_CAPTURED)\n\n_По умолчанию без аутентификации 3DS проходят:_\n* все платежи с привязанной карты\n  * CIT_CREDENTIAL_ON_FILE\n  * MIT_CREDENTIAL_ON_FILE (INSTALLMENT/RECURRING)\n\n## Инициирование аутентификации пользователя\nДля перенаправления пользователя на страницу проверки, используется POST запрос по адресу из поля `acsUrl`.\n**Передаваемые параметры:**\n* `TermUrl` - URL для перенаправления покупателя после успешной аутентификации 3DS;\n* `MD` - уникальный идентификатор транзакции;\n* `PaReq` - значение поля paReq из ответа на запрос \"Создание платежа\".\n\nПроцесс перенаправления унифицирован для 3DS 1.0 и 3DS 2.0. Версия протокола не влияет на интеграцию с API.\n\n## Завершение процесса аутентификации\n\nПо завершении процесса проверки клиент перенаправляется на адрес `TermUrl`, где в параметре `PaRes` передаётся зашифрованный результат аутентификации.\n\nДля завершения процесса 3DS аутентификации необходимо выполнить вызов метода API [\"Завершение аутентификации\"](/doc/v2/redoc/tag/Zavershenie-autentifikacii?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json)\n\n\n\n# Серверные уведомления\n\nСерверные уведомления — это входящий POST-запрос с информацией о событии. Тело запроса содержит строку — JWT-токен, зашифрованный алгоритмом RS256.\n\nДля того чтобы убедиться, что уведомление пришло от Точки, используйте наш [публичный ключ OpenAPI](https://enter.tochka.com/doc/openapi/static/keys/public)\n\n## Типы уведомлений\n\n- [Уведомление об изменении статуса платежа](/doc/v2/redoc/tag/Servernye-uvedomleniya?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#paymentNotification) (только для оплаты через СБП)\n- [Уведомление об изменении статуса возврата](/doc/v2/redoc/tag/Servernye-uvedomleniya?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#refundNotification) (только для оплаты через СБП)\n- [Уведомление о результате операции токенизации CБП](/doc/v2/redoc/tag/Servernye-uvedomleniya?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#tokenizationDecisionNotification)\n\n## Настройка callbackUrl\n\nАдрес для получения уведомлений (`callbackUrl`) указывается:\n\n- При вызове метода [\"Создание Функциональной ссылки СБП\"](/doc/v2/redoc/tag/WIP-Funkcionalnye-ssylki-SBP?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#createQRCode) — в параметре `callbackUrl`;\n- При вызове метода [\"Создание платежа\"](/doc/v2/redoc/tag/Platezh-cherez-formu-merchanta?schema=https://api.tochka.com/static/v1/pay-gateway/docs/swagger.json#createPayment) с методом оплаты `SBPTokenPaymentMethod` — в параметре `callbackUrl`;\n\nЕсли callbackUrl не был передан в запросе, будет использоваться адрес, указанный вами в качестве адреса для серверных уведомлений при бординге.\n\n\n\n\n",
         "version": "1.0"
     },
     "servers": [
@@ -67,7 +67,7 @@
                 "tags": [
                     "Серверные уведомления"
                 ],
-                "summary": "Уведомление о создании возврата",
+                "summary": "Уведомление об изменении статуса возврата",
                 "operationId": "refundNotification",
                 "requestBody": {
                     "content": {
@@ -91,7 +91,7 @@
                 "tags": [
                     "Серверные уведомления"
                 ],
-                "summary": "Уведомление о создании или обновлении статуса платежа",
+                "summary": "Уведомление об изменении статуса платежа",
                 "operationId": "paymentNotification",
                 "requestBody": {
                     "content": {
@@ -161,7 +161,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/QRCodeResponseDTO"
+                                    "$ref": "#/components/schemas/QRCodeResponseDTOWrapped"
                                 }
                             }
                         }
@@ -376,27 +376,27 @@
                         }
                     },
                     {
-                        "name": "offset",
+                        "name": "page",
                         "in": "query",
-                        "description": "Начальный элемент страницы",
-                        "required": false,
-                        "schema": {
-                            "minimum": 0,
-                            "type": "integer",
-                            "format": "int64",
-                            "default": 0
-                        }
-                    },
-                    {
-                        "name": "limit",
-                        "in": "query",
-                        "description": "Максимальное количество элементов на странице",
+                        "description": "Номер страницы (начиная с 1)",
                         "required": false,
                         "schema": {
                             "minimum": 1,
                             "type": "integer",
                             "format": "int32",
                             "default": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Количество записей на странице",
+                        "required": false,
+                        "schema": {
+                            "minimum": 1,
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 50
                         }
                     },
                     {
@@ -418,7 +418,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PageDTO"
+                                    "$ref": "#/components/schemas/PaymentResponseListDTOWrapped"
                                 }
                             }
                         }
@@ -651,7 +651,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaymentResponseDTO"
+                                    "$ref": "#/components/schemas/PaymentResponseDTOWrapped"
                                 }
                             }
                         }
@@ -883,7 +883,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/RefundResponseListDTO"
+                                    "$ref": "#/components/schemas/RefundResponseListDTOWrapped"
                                 }
                             }
                         }
@@ -1126,7 +1126,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/RefundResponseDTO"
+                                    "$ref": "#/components/schemas/RefundResponseDTOWrapped"
                                 }
                             }
                         }
@@ -1368,7 +1368,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaymentResponseDTO"
+                                    "$ref": "#/components/schemas/PaymentResponseDTOWrapped"
                                 }
                             }
                         }
@@ -1600,7 +1600,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/CaptureResponseListDTO"
+                                    "$ref": "#/components/schemas/CaptureResponseListDTOWrapped"
                                 }
                             }
                         }
@@ -1843,7 +1843,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/CaptureResponseDTO"
+                                    "$ref": "#/components/schemas/CaptureResponseDTOWrapped"
                                 }
                             }
                         }
@@ -2115,7 +2115,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/QRCodeResponseDTO"
+                                    "$ref": "#/components/schemas/QRCodeResponseDTOWrapped"
                                 }
                             }
                         }
@@ -2347,7 +2347,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaymentResponseDTO"
+                                    "$ref": "#/components/schemas/PaymentResponseDTOWrapped"
                                 }
                             }
                         }
@@ -2589,7 +2589,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/RefundResponseDTO"
+                                    "$ref": "#/components/schemas/RefundResponseDTOWrapped"
                                 }
                             }
                         }
@@ -2831,7 +2831,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/CaptureResponseDTO"
+                                    "$ref": "#/components/schemas/CaptureResponseDTOWrapped"
                                 }
                             }
                         }
@@ -3380,7 +3380,7 @@
                 },
                 "description": "Опциональные данные сгенерированного изображения QR-кода"
             },
-            "QRCodeResponseDTO": {
+            "QRCodeResponseDTOWrapped": {
                 "required": [
                     "Data",
                     "Links",
@@ -4003,7 +4003,7 @@
                     "propertyName": "type"
                 }
             },
-            "PaymentResponse": {
+            "PaymentResponseDTO": {
                 "required": [
                     "amount",
                     "capturedAmount",
@@ -4105,7 +4105,7 @@
                     }
                 }
             },
-            "PaymentResponseDTO": {
+            "PaymentResponseDTOWrapped": {
                 "required": [
                     "Data",
                     "Links",
@@ -4528,6 +4528,73 @@
             },
             "RefundResponseDTO": {
                 "required": [
+                    "amount",
+                    "createdDateTime",
+                    "refundUid",
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "refundUid": {
+                        "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                        "type": "string",
+                        "description": "Уникальный идентификатор возврата в информационной системе ТСП",
+                        "example": "8H7GSEE7018GC67"
+                    },
+                    "createdDateTime": {
+                        "type": "string",
+                        "description": "Дата создания операции в формате ISO8601",
+                        "format": "date-time",
+                        "example": "2025-01-01T01:23:45+03:00"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyDTO"
+                    },
+                    "status": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Completed"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Declined"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Waiting"
+                            }
+                        ]
+                    },
+                    "callbackUrl": {
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                        "type": "string",
+                        "description": "URL отправки уведомления об операции",
+                        "example": "https://test.tochkapay.com/notification"
+                    },
+                    "comment": {
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "Дополнительное описание возврата",
+                        "example": "Возврат за услугу"
+                    },
+                    "refundMethodResult": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CardRefundMethodResultDTO"
+                            },
+                            {
+                                "$ref": "#/components/schemas/SBPRefundMethodResultDTO"
+                            },
+                            {
+                                "$ref": "#/components/schemas/SBPTokenRefundMethodResultDTO"
+                            }
+                        ]
+                    }
+                }
+            },
+            "RefundResponseDTOWrapped": {
+                "required": [
                     "Data",
                     "Links",
                     "Meta"
@@ -4776,7 +4843,7 @@
                     }
                 }
             },
-            "CaptureResponseDTO": {
+            "CaptureResponseDTOWrapped": {
                 "required": [
                     "Data",
                     "Links",
@@ -4940,14 +5007,14 @@
                 ],
                 "type": "object",
                 "properties": {
-                    "qrcId": {
-                        "type": "string"
-                    },
                     "metadata": {
                         "type": "object",
                         "additionalProperties": {
                             "type": "string"
                         }
+                    },
+                    "qrcId": {
+                        "type": "string"
                     }
                 },
                 "description": "Тело уведомления"
@@ -4965,6 +5032,7 @@
                 "properties": {
                     "version": {
                         "type": "string",
+                        "description": "Версия формата уведомления",
                         "enum": [
                             "1.0"
                         ]
@@ -4985,7 +5053,6 @@
                     "createdAt": {
                         "type": "string",
                         "description": "Дата создания уведомления",
-                        "format": "date-time",
                         "example": "2025-01-01T01:23:45+03:00"
                     },
                     "payloadType": {
@@ -5021,6 +5088,7 @@
                 "properties": {
                     "version": {
                         "type": "string",
+                        "description": "Версия формата уведомления",
                         "enum": [
                             "1.0"
                         ]
@@ -5040,7 +5108,6 @@
                     "createdAt": {
                         "type": "string",
                         "description": "Дата создания уведомления",
-                        "format": "date-time",
                         "example": "2025-01-01T01:23:45+03:00"
                     },
                     "payloadType": {
@@ -5089,7 +5156,6 @@
                     "createdAt": {
                         "type": "string",
                         "description": "Дата создания уведомления",
-                        "format": "date-time",
                         "example": "2025-01-01T01:23:45+03:00"
                     },
                     "payloadType": {
@@ -5100,12 +5166,12 @@
                         ]
                     },
                     "payload": {
-                        "$ref": "#/components/schemas/PaymentResponse"
+                        "$ref": "#/components/schemas/PaymentResponseDTO"
                     }
                 },
                 "description": "Уведомление об изменении платежа"
             },
-            "PageDTO": {
+            "PaymentResponseListDTOWrapped": {
                 "required": [
                     "Data",
                     "Links",
@@ -5114,26 +5180,107 @@
                 "type": "object",
                 "properties": {
                     "Data": {
-                        "required": [
-                            "data",
-                            "offset",
-                            "totalCount"
-                        ],
-                        "type": "object",
-                        "properties": {
-                            "data": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/PaymentResponse"
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "amount",
+                                "capturedAmount",
+                                "createdDateTime",
+                                "isTest",
+                                "metadata",
+                                "paymentMethod",
+                                "paymentUid",
+                                "refundedAmount",
+                                "status"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "paymentUid": {
+                                    "pattern": "^[0-9a-zA-Z-]{1,64}$",
+                                    "type": "string",
+                                    "description": "Уникальный идентификатор платежа в информационной системе ТСП",
+                                    "example": "977639EE70494C67"
+                                },
+                                "createdDateTime": {
+                                    "type": "string",
+                                    "description": "Дата создания платежа",
+                                    "format": "date-time",
+                                    "example": "2025-01-01T01:23:45+03:00"
+                                },
+                                "orderUid": {
+                                    "pattern": "^[0-9a-zA-Z-:]{1,64}$",
+                                    "type": "string",
+                                    "description": "Уникальный идентификатор заказа в информационной системе ТСП",
+                                    "example": "12EKN0170494C67"
+                                },
+                                "amount": {
+                                    "$ref": "#/components/schemas/PaymentAmount"
+                                },
+                                "capturedAmount": {
+                                    "$ref": "#/components/schemas/CapturedAmount"
+                                },
+                                "refundedAmount": {
+                                    "$ref": "#/components/schemas/RefundedAmount"
+                                },
+                                "paymentMethod": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/CardPaymentMethodResult"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/SBPPaymentMethodResult"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/SBPTokenPaymentMethodResult"
+                                        }
+                                    ]
+                                },
+                                "status": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/Completed"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Declined"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Waiting"
+                                        }
+                                    ]
+                                },
+                                "customer": {
+                                    "$ref": "#/components/schemas/CustomerDTO"
+                                },
+                                "requirements": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ThreeDSRequirements"
+                                        }
+                                    ]
+                                },
+                                "callbackUrl": {
+                                    "maxLength": 2083,
+                                    "minLength": 1,
+                                    "pattern": "^https?://[-a-zA-Z0-9¡-￿+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9¡-￿+&@#/%=~_|]",
+                                    "type": "string",
+                                    "description": "URL отправки уведомления об операции [feature in development]",
+                                    "example": "https://test.tochkapay.com/notification"
+                                },
+                                "comment": {
+                                    "maxLength": 255,
+                                    "minLength": 1,
+                                    "type": "string",
+                                    "description": "Комментарий"
+                                },
+                                "isTest": {
+                                    "type": "boolean",
+                                    "description": "Флаг тестовой операции"
+                                },
+                                "metadata": {
+                                    "type": "string",
+                                    "description": "Строка с json, содержащим дополнительные поля с произвольной информацией.\n Пример формата: `\"{\\\"property1\\\": \\\"string\\\"}\"`",
+                                    "example": "{\"key1\":\"value1\",\"key2\":\"value2\"}"
                                 }
-                            },
-                            "offset": {
-                                "type": "integer",
-                                "format": "int64"
-                            },
-                            "totalCount": {
-                                "type": "integer",
-                                "format": "int64"
                             }
                         }
                     },
@@ -5167,7 +5314,7 @@
                     }
                 }
             },
-            "RefundResponseListDTO": {
+            "RefundResponseListDTOWrapped": {
                 "required": [
                     "Data",
                     "Links",
@@ -5275,7 +5422,7 @@
                     }
                 }
             },
-            "CaptureResponseListDTO": {
+            "CaptureResponseListDTOWrapped": {
                 "required": [
                     "Data",
                     "Links",
